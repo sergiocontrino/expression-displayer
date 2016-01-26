@@ -17,7 +17,7 @@ if(typeof mineUrl === 'undefined'){
  };
 
 if(typeof queryId === 'undefined'){
-   queryId = DEFAULT_MINEURL;
+   queryId = DEFAULT_ID;
  };
 
 var BASEURL = mineUrl + "/service/query/results?query=";
@@ -30,14 +30,15 @@ var BASEURL = mineUrl + "/service/query/results?query=";
 
 //~ var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
 
-var QUERYSTART =
-"%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.RNASeqExpressions.experiment.SRAaccession%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
+
+var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.SRAaccession%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
+
 
 
 var QUERYEND="%22/%3E%20%3C/query%3E";
 
-
 var QUERY= BASEURL + QUERYSTART + queryId + QUERYEND;
+
 // TODO update
 var PORTAL = "portal.do?class=ProteinDomain&externalids=";
 
@@ -63,6 +64,7 @@ var width = parseInt(svg.style("width"));
 // Store our scale so that it's accessible by all:
 var x= null;
 var xAxis = null;
+var yAxis = null;
 
 var z=null;
 var y=null;
@@ -131,6 +133,10 @@ var render = function() {
     .orient("bottom")
     ;
 
+yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    ;
 
   // Draw our elements!!
   var bar = svg.selectAll("g")
@@ -156,7 +162,7 @@ var render = function() {
       d3.select(this)
 //          .attr({"xlink:href": mineUrl + PORTAL + d[5]});
           .attr({"xlink:href": "http://www.betterthantv.co.uk"})
-          .attr({"xlink:title": d[4] + ": " + d[2]});
+          .attr({"xlink:title": d[0] +" - " + d[4] + ": " + d[2]});
 
     })
     .append("rect")
@@ -208,6 +214,28 @@ var render = function() {
       .style("stroke", "grey")
       .style("fill", "none")
       .style("stroke-width", 1);
+
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", function(d, i) {
+        return "translate( 0 " + "," + (margin.top + 1.5 * barHeight ) + ")"})
+        //~ return "translate( 0 " + ", " + 10 + ")"})
+      .style("stroke", "gray")
+      .style("stroke-width", 1)
+      .style("shape-rendering", "crispEdges")
+      .attr("ticks", 16)
+      .call(yAxis)
+
+    .append("text")
+      .attr("class", "label")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("text-anchor", "beginning")
+      .text("GENE");
+
+
+
 
 }
 
@@ -271,7 +299,6 @@ d3.json(QUERY, function(returned) {
   data = returned.results;
   render();
 });
-
 
 
 // Rescale it when the window resizes:
