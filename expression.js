@@ -40,7 +40,7 @@ var QUERYEND="%22/%3E%20%3C/query%3E";
 var QUERY= BASEURL + QUERYSTART + queryId + QUERYEND;
 
 // TODO update
-var PORTAL = "portal.do?class=ProteinDomain&externalids=";
+var PORTAL = "portal.do?class=Gene&externalids=";
 
 var svg = d3.select("#echart");
 
@@ -82,7 +82,7 @@ var color = d3.scale.linear()
   svg.attr("height", 0);
 
   x = d3.scale.linear().range([0, width])
-  y = d3.scale.linear().range([barHeight, 0])
+  y = d3.scale.linear().range([3*barHeight, 0])
 //  z = d3.scale.linear().range(colorbrewer.RdBu[9]);
   z = d3.scale.linear().range("white", "blue");
 
@@ -123,9 +123,15 @@ var color = d3.scale.linear()
   });
 
   // Compute the scale domains.
-  x.domain(d3.extent(data, function(d) { return d.sra; }));
-  y.domain(d3.extent(data, function(d) { return d.gene; }));
-  z.domain([0, d3.max(data, function(d) { return d.tpm; })]);
+  x.domain(d3.extent(data, function(d) { return d[4]; }));
+  y.domain(d3.extent(data, function(d) { return d[0]; }));
+  z.domain([0, d3.max(data, function(d) { return d[2]; })]);
+
+console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
+console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
+console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
+
+
 
   xAxis = d3.svg.axis()
     .scale(x)
@@ -159,8 +165,8 @@ yAxis = d3.svg.axis()
   bar.append("a")
     .on("mouseover", function(d, i){
       d3.select(this)
-//          .attr({"xlink:href": mineUrl + PORTAL + d[5]});
-          .attr({"xlink:href": "http://www.betterthantv.co.uk"})
+          .attr({"xlink:href": mineUrl + PORTAL + d[0]})
+          //.attr({"xlink:href": "http://www.betterthantv.co.uk"})
           .attr({"xlink:title": d[0] +" - " + d[4] + ": " + d[2]});
 
     })
@@ -168,12 +174,11 @@ yAxis = d3.svg.axis()
     .attr("width", cellWidth)
     .attr("height", barHeight - 1)
     .style("fill", function(d, i) { return color(d[2])});
-    //~ .style("fill", function(d, i) { return z(d.tpm)});
 
   bar.append("a")
     .on("mouseover", function(d){
       d3.select(this)
-          .attr({"xlink:href": "http://www.betterthantv.co.uk"})
+          .attr({"xlink:href": mineUrl + PORTAL + d[0]})
           .attr({"xlink:title": d[0]});
       })
     //~ .append("text")
