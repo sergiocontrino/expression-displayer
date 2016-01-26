@@ -44,16 +44,11 @@ var PORTAL = "portal.do?class=ProteinDomain&externalids=";
 
 var svg = d3.select("#echart");
 
+// not used
 var colors = d3.scale.category20c();
-//var colors = d3.scale.category10();
 
-var color = d3.scale.linear()
-    .domain([0, 10])
-    //.range(["lightgray", "green"]);
-    .range(["palegreen", "red"]);
-
-// Will hold our data
-//var alldata = null
+// will be set according to range
+var color = null;
 
 // margins
 var margin = {top: 40, right: 20, bottom: 30, left: 40}
@@ -77,6 +72,10 @@ var render = function() {
 
   var max = d3.max(data, function(d) { return +d[2];} );
 
+var color = d3.scale.linear()
+    .domain([0, max])
+    //.range(["lightgray", "green"]);
+    .range(["palegreen", "red"]);
 
 
   // when no results don't display anything
