@@ -9,7 +9,7 @@
 // to set the mine: could be done inside js with injection
 // here using a parameter from jsp
 //var DEFAULT_MINEURL = "https://apps.araport.org/thalemine/";
-var DEFAULT_MINEURL = "http://intermine.modencode.org/thaleminebuild/";
+var DEFAULT_MINEURL = "http://intermine.modencode.org/thaleminedev/";
 var DEFAULT_ID = "AT3G24650";
 
 if(typeof mineUrl === 'undefined'){
@@ -22,11 +22,17 @@ if(typeof queryId === 'undefined'){
 
 var BASEURL = mineUrl + "/service/query/results?query=";
 
-var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22"+
-"RnaseqExpression.TPM%20RnaseqExpression.gene.primaryIdentifier%20"+
-"RnaseqExpression.study.SRAaccession%22%20longDescription=%22%22%20"+
-"sortOrder=%22RnaseqExpression.study.SRAaccession%20asc%22%3E%20%3"+
-"Cconstraint%20path=%22RnaseqExpression.gene.primaryIdentifier%22%20op=%22=%22%20value=%22";
+//var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22"+
+//"RnaseqExpression.TPM%20RnaseqExpression.gene.primaryIdentifier%20"+
+//"RnaseqExpression.study.SRAaccession%22%20longDescription=%22%22%20"+
+//"sortOrder=%22RnaseqExpression.study.SRAaccession%20asc%22%3E%20%3"+
+//"Cconstraint%20path=%22RnaseqExpression.gene.primaryIdentifier%22%20op=%22=%22%20value=%22";
+
+//~ var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
+
+var QUERYSTART =
+"%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.RNASeqExpressions.experiment.SRAaccession%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
+
 
 var QUERYEND="%22/%3E%20%3C/query%3E";
 
@@ -67,7 +73,7 @@ var cellWidth = 10;
 
 var render = function() {
 
-  var max = d3.max(data, function(d) { return +d[0];} );
+  var max = d3.max(data, function(d) { return +d[2];} );
 
 
 
@@ -105,9 +111,14 @@ var render = function() {
 
   // Coerce data to the appropriate types.
   data.forEach(function(d) {
-    d.sra = +d[2];
-    d.gene = +d[1];
-    d.tpm = +d[0];
+    //~ d.sra = +d[2];
+    //~ d.gene = +d[1];
+    //~ d.tpm = +d[0];
+
+    d.sra = +d[4];
+    d.gene = +d[0];
+    d.tpm = +d[2];
+
   });
 
   // Compute the scale domains.
@@ -145,13 +156,13 @@ var render = function() {
       d3.select(this)
 //          .attr({"xlink:href": mineUrl + PORTAL + d[5]});
           .attr({"xlink:href": "http://www.betterthantv.co.uk"})
-          .attr({"xlink:title": d[2] + ": " + d[0]});
+          .attr({"xlink:title": d[4] + ": " + d[2]});
 
     })
     .append("rect")
     .attr("width", cellWidth)
     .attr("height", barHeight - 1)
-    .style("fill", function(d, i) { return color(d[0])});
+    .style("fill", function(d, i) { return color(d[2])});
     //~ .style("fill", function(d, i) { return z(d.tpm)});
 
   bar.append("a")
