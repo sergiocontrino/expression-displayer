@@ -28,18 +28,12 @@ var BASEURL = mineUrl + "/service/query/results?query=";
 //"sortOrder=%22RnaseqExpression.study.SRAaccession%20asc%22%3E%20%3"+
 //"Cconstraint%20path=%22RnaseqExpression.gene.primaryIdentifier%22%20op=%22=%22%20value=%22";
 
-//~ var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
-
-
 var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.SRAaccession%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
-
-
 
 var QUERYEND="%22/%3E%20%3C/query%3E";
 
 var QUERY= BASEURL + QUERYSTART + queryId + QUERYEND;
 
-// TODO update
 var PORTAL = "portal.do?class=Gene&externalids=";
 
 var svg = d3.select("#echart");
@@ -58,35 +52,44 @@ var width = parseInt(svg.style("width"));
 
 // Store our scale so that it's accessible by all:
 var x= null;
-var xAxis = null;
-var yAxis = null;
-
 var z=null;
 var y=null;
+
+var geneNr=null;
+var sampleNr=null;
+
+var xAxis = null;
+var yAxis = null;
 
 // Static bar type:
 var barHeight = 20;
 var cellWidth = 10;
 
+
+
 var render = function() {
 
-  var max = d3.max(data, function(d) { return +d[2];} );
-
-var color = d3.scale.linear()
-    .domain([0, max])
-    //.range(["lightgray", "green"]);
-    .range(["palegreen", "red"]);
 
 
   // when no results don't display anything
   svg.attr("height", 0);
 
-  x = d3.scale.linear().range([0, width])
-  y = d3.scale.linear().range([3*barHeight, 0])
-//  z = d3.scale.linear().range(colorbrewer.RdBu[9]);
-  z = d3.scale.linear().range("white", "blue");
-
   if (data.length > 0) {
+
+  // preliminary setting
+  var max = d3.max(data, function(d) { return +d[2];} );
+  geneNr = d3.map(data, function(d){return d[0];}).size();
+  sampleNr = data.length/geneNr;
+
+  x = d3.scale.linear().range([0, width])
+  y = d3.scale.linear().range([geneNr*barHeight, 0])
+  z = d3.scale.linear().range("white", "blue"); //?
+
+  var color = d3.scale.linear()
+    .domain([0, max])
+    //.range(["lightgray", "green"]);
+    .range(["palegreen", "red"]);
+
 
   // Build the report header
     head = svg.append('foreignObject')
@@ -97,7 +100,7 @@ var color = d3.scale.linear()
       .attr('height', 20)
       //.attr('fill', )
       .append("xhtml:body")
-      .html('<h3 class="goog"> ' + data.length + ' RNA Seq Expressions - source: Araport</h3>\
+      .html('<h3 class="goog"> ' + sampleNr + ' Samples RNA Seq Expressions - source: Araport</h3>\
              <p> <p>');
 
   // Size our SVG tall enough so that it fits each bar.
@@ -105,7 +108,7 @@ var color = d3.scale.linear()
   //svg.attr("height", margin.top + (barHeight * data.length) + margin.bottom);
   svg.attr("height", margin.top + (barHeight * 4) + margin.bottom);
 
-  cellWidth=((width - margin.right -margin.left)/data.length);
+  cellWidth=((width - margin.right -margin.left)/sampleNr);
   console.log("CW=" + cellWidth + "  max value=" + max);
 
   }
@@ -124,13 +127,18 @@ var color = d3.scale.linear()
 
   // Compute the scale domains.
   x.domain(d3.extent(data, function(d) { return d[4]; }));
-  y.domain(d3.extent(data, function(d) { return d[0]; }));
+  //y.domain(d3.extent(data, function(d) { return d[0]; }));
   z.domain([0, d3.max(data, function(d) { return d[2]; })]);
+  y.domain(d3.map(data, function(d){return d[0];}).keys());
 
 console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
 console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
 console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
+console.log("genes: " + d3.map(data, function(d){return d[0];}).keys());
+//console.log("genes: " + d3.map(data, function(d){return d[0];}).values());
+console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
 
+//console.log("yy: " + d3.scale.quantile.domain(data, function(d) { return d[4]; }));
 
 
   xAxis = d3.svg.axis()
@@ -146,21 +154,16 @@ yAxis = d3.svg.axis()
   // Draw our elements!!
   var bar = svg.selectAll("g")
       .data(data)
-    //~ .enter().append("rect")
-      //~ .attr("class", "tile")
-      //~ .attr("x", function(d) { return x(d.sra); })
-      //~ .attr("y", barHeight)
-      //~ //.attr("width", x(xStep) - x(0))
-      //~ //.attr("height",  y(0) - y(barHeight))
-      //~ .style("fill", function(d) { return z(d.tpm); });
 
   // New bars:
   bar.enter().append("g")
       .attr("class", "proteinbar")
       .attr("transform", function(d, i) {
-        //~ return "translate(" + x(d[0]) + "," + (margin.top + (i * barHeight)) + ")";
-        return "translate("+(margin.right + i*cellWidth) + "," + (margin.top + barHeight) + ")";
-      });
+        //return "translate(" + x(d[0]) + "," + (margin.top + (i * barHeight)) + ")";
+        //return "translate("+(margin.right + i*cellWidth) + "," + (margin.top + barHeight) + ")";
+       // return "translate("+(margin.right + (i%113)*cellWidth) + "," + (margin.top + (i/113)*barHeight).toFixed(0) + ")";
+         return "translate("+(margin.right + (i%113)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/113) ) + ")";
+     });
 
   bar.append("a")
     .on("mouseover", function(d, i){
