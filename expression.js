@@ -105,11 +105,9 @@ var render = function() {
 
   // Size our SVG tall enough so that it fits each bar.
   // Width was already defined when we loaded.
-  //svg.attr("height", margin.top + (barHeight * data.length) + margin.bottom);
-  svg.attr("height", margin.top + (barHeight * 4) + margin.bottom);
-
+  svg.attr("height", margin.top + (barHeight * geneNr) + margin.bottom);
   cellWidth=((width - margin.right -margin.left)/sampleNr);
-  console.log("CW=" + cellWidth + "  max value=" + max);
+//  console.log("CW=" + cellWidth + "  max value=" + max);
 
   }
 
@@ -132,14 +130,11 @@ var render = function() {
   y.domain(d3.map(data, function(d){return d[0];}).keys());
 
 console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
-console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
+//console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
 console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
 console.log("genes: " + d3.map(data, function(d){return d[0];}).keys());
 //console.log("genes: " + d3.map(data, function(d){return d[0];}).values());
 console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
-
-//console.log("yy: " + d3.scale.quantile.domain(data, function(d) { return d[4]; }));
-
 
   xAxis = d3.svg.axis()
     .scale(x)
@@ -162,7 +157,7 @@ yAxis = d3.svg.axis()
         //return "translate(" + x(d[0]) + "," + (margin.top + (i * barHeight)) + ")";
         //return "translate("+(margin.right + i*cellWidth) + "," + (margin.top + barHeight) + ")";
        // return "translate("+(margin.right + (i%113)*cellWidth) + "," + (margin.top + (i/113)*barHeight).toFixed(0) + ")";
-         return "translate("+(margin.right + (i%113)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/113) ) + ")";
+         return "translate("+(margin.right + (i%sampleNr)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/sampleNr) ) + ")";
      });
 
   bar.append("a")
@@ -215,8 +210,7 @@ yAxis = d3.svg.axis()
       .attr("class", "boundingbox")
       .attr("x", 0)
       .attr("y", (margin.top - 5))
-      //~ .attr("height", (10 + barHeight * data.length))
-      .attr("height", (20 + barHeight*3))
+      .attr("height", (20 + barHeight*geneNr))
       .attr("width", width)
       .style("stroke", "grey")
       .style("fill", "none")
