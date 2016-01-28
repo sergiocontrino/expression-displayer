@@ -65,11 +65,7 @@ var yAxis = null;
 var barHeight = 20;
 var cellWidth = 10;
 
-
-
 var render = function() {
-
-
 
   // when no results don't display anything
   svg.attr("height", 0);
@@ -196,7 +192,7 @@ yAxis = d3.svg.axis()
       .call(xAxis)
 
     .append("text")
-      .attr("class", "label")
+      .attr("class", "xlabel")
       .attr("x", margin.right + sampleNr*cellWidth)
       .attr("y", 15*geneNr)
       .attr("text-anchor", "end")
@@ -225,7 +221,7 @@ yAxis = d3.svg.axis()
       .call(yAxis)
 
     .append("text")
-      .attr("class", "label")
+      .attr("class", "ylabel")
       .attr("x", 0)
       .attr("y", 0)
       .attr("text-anchor", "beginning")
@@ -266,7 +262,7 @@ var rescale = function() {
   // The new width of the SVG element
   var newwidth = parseInt(svg.style("width"));
 
-  // Our input hasn't changed (domain) but our range has. Rescale it!
+ // Our input hasn't changed (domain) but our range has. Rescale it!
   x.range([0, newwidth]);
   cellWidth=((newwidth - margin.right -margin.left)/sampleNr);
 
@@ -274,36 +270,34 @@ var rescale = function() {
   var bar = svg.selectAll(".proteinbar").data(data)
 
   bar.attr("transform", function(d, i) {
-        return "translate("+(margin.right + i*cellWidth) + "," + (margin.top + barHeight) + ")";
+        return "translate("+(margin.right + (i%sampleNr)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/sampleNr) ) + ")";
       });
 
   // For each bar group, select the rect and reposition it using the new scale.
   bar.select("rect")
       .attr("width", cellWidth)
       .attr("height", barHeight - 1)
-      .style("fill", function(d, i) { return color(d[0])});
+      ;
 
   // Also reposition the bars using the new scales.
-  bar.select("text")
-      .attr("x", function(d,i) { return i*cellWidth; })
-      .attr("y", barHeight / 2)
-      .attr("dy", ".15em")
-      .text(function(d) { return (d[2])});
+  //~ bar.select("text")
+      //~ .attr("x", function(d,i) { return i*cellWidth; })
+      //~ .attr("y", barHeight / 2)
+      //~ .attr("dy", ".15em")
+      //~ .text(function(d) { return (d[2])});
 
   // resize the bounding box
-  var bb = svg.select(".boundingbox").attr("width", newwidth);
+  var bb = svg.select(".boundingbox").attr("width", (newwidth -15));
 
   // resize the x axis
   xAxis.scale(x);
   svg.select(".x.axis").call(xAxis)
-    //~ .append("text")
-      //~ .attr("class", "label")
-      //~ .attr("x", newwidth)
-      //~ .attr("y", -6)
-      //~ .attr("text-anchor", "end")
-      //~ .style("stroke", "red")
-      //~ .text("SRAuu")
-      ;
+  ;
+
+// re position the label
+svg.select(".xlabel")
+    .attr("x", margin.right + sampleNr*cellWidth)
+    .text("SRA");
 
   // resize the header
   head = svg.select(".myheader").attr("width",newwidth);
