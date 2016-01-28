@@ -45,7 +45,7 @@ var colors = d3.scale.category20c();
 var color = null;
 
 // margins
-var margin = {top: 40, right: 20, bottom: 30, left: 40}
+var margin = {top: 40, right: 40, bottom: 30, left: 60}
 
 // Original Width
 var width = parseInt(svg.style("width"));
@@ -111,16 +111,12 @@ var render = function() {
 
   }
 
-  // Coerce data to the appropriate types.
+  // Coerce data to the appropriate types. ??
   data.forEach(function(d) {
-    //~ d.sra = +d[2];
-    //~ d.gene = +d[1];
-    //~ d.tpm = +d[0];
-
     d.sra = +d[4];
     d.gene = +d[0];
     d.tpm = +d[2];
-
+    d.cat = +d[5];
   });
 
   // Compute the scale domains.
@@ -165,7 +161,7 @@ yAxis = d3.svg.axis()
       d3.select(this)
           .attr({"xlink:href": mineUrl + PORTAL + d[0]})
           //.attr({"xlink:href": "http://www.betterthantv.co.uk"})
-          .attr({"xlink:title": d[0] +" - " + d[4] + ": " + d[2]});
+          .attr({"xlink:title": d[0] +" - " + d[4] + " (" + d[5] + "): " + d[2]});
 
     })
     .append("rect")
@@ -196,13 +192,13 @@ yAxis = d3.svg.axis()
       .style("stroke", "gray")
       .style("stroke-width", 1)
       .style("shape-rendering", "crispEdges")
-      .attr("ticks", 16)
+      .attr("ticks", 5)
       .call(xAxis)
 
     .append("text")
       .attr("class", "label")
-      .attr("x", width)
-      .attr("y", -6)
+      .attr("x", margin.right + sampleNr*cellWidth)
+      .attr("y", 15*geneNr)
       .attr("text-anchor", "end")
       .text("SRA");
 
@@ -210,8 +206,8 @@ yAxis = d3.svg.axis()
       .attr("class", "boundingbox")
       .attr("x", 0)
       .attr("y", (margin.top - 5))
-      .attr("height", (20 + barHeight*geneNr))
-      .attr("width", width)
+      .attr("height", (30 + barHeight*geneNr))
+      .attr("width", width - 15)
       .style("stroke", "grey")
       .style("fill", "none")
       .style("stroke-width", 1);
@@ -235,8 +231,33 @@ yAxis = d3.svg.axis()
       .attr("text-anchor", "beginning")
       .text("GENE");
 
+/*
+// Add a legend for the color values.
+  var legend = svg.selectAll(".legend")
+      .data(z.ticks(6).slice(1).reverse())
+    .enter().append("g")
+      .attr("class", "legend")
+      //~ .attr("transform", function(d, i) { return "translate(" + (20 + i * 20) + "," + (barHeight*geneNr + 44) + ")"; });
+      .attr("transform", function(d, i) { return "translate(" + (width + 20) + "," + (20 + i * 20) + ")"; });
 
+  legend.append("rect")
+      .attr("width", cellWidth*2)
+      .attr("height", 20)
+      .style("fill", z);
 
+  legend.append("text")
+      .attr("x", 26)
+      .attr("y", 10)
+      .attr("dy", ".35em")
+      .text(String);
+
+  svg.append("text")
+      .attr("class", "label")
+      .attr("x", cellWidth*16)
+      .attr("y", barHeight*geneNr + 44)
+      .attr("dy", ".35em")
+      .text("Count");
+*/
 
 }
 
@@ -247,7 +268,7 @@ var rescale = function() {
 
   // Our input hasn't changed (domain) but our range has. Rescale it!
   x.range([0, newwidth]);
-  cellWidth=((newwidth - margin.right -margin.left)/data.length);
+  cellWidth=((newwidth - margin.right -margin.left)/sampleNr);
 
   // Use our existing data:
   var bar = svg.selectAll(".proteinbar").data(data)
