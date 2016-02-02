@@ -28,7 +28,13 @@ var BASEURL = mineUrl + "/service/query/results?query=";
 //"sortOrder=%22RnaseqExpression.study.SRAaccession%20asc%22%3E%20%3"+
 //"Cconstraint%20path=%22RnaseqExpression.gene.primaryIdentifier%22%20op=%22=%22%20value=%22";
 
-var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.SRAaccession%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
+//var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.score%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.category%20Gene.RNASeqExpressions.experiment.title%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.category%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
+
+// model v4
+//var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.expressionLevel%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.tissue%20Gene.RNASeqExpressions.experiment.description%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.tissue%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
+
+// v4 no description
+var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.expressionLevel%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.tissue%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.tissue%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
 
 var QUERYEND="%22/%3E%20%3C/query%3E";
 
@@ -45,13 +51,13 @@ var colors = d3.scale.category20c();
 var color = null;
 
 // margins
-var margin = {top: 40, right: 40, bottom: 30, left: 60}
+var margin = {top: 60, right: 40, bottom: 30, left: 60}
 
 // Original Width
 var width = parseInt(svg.style("width"));
 
 // Store our scale so that it's accessible by all:
-var x= null;
+var x=null;
 var z=null;
 var y=null;
 
@@ -70,7 +76,7 @@ var render = function() {
   // when no results don't display anything
   svg.attr("height", 0);
 
-  if (data.length > 0) {
+  if (data.length == 0) {return};
 
   // preliminary setting
   var max = d3.max(data, function(d) { return +d[2];} );
@@ -78,7 +84,7 @@ var render = function() {
   sampleNr = data.length/geneNr;
 
   x = d3.scale.linear().range([0, width])
-  y = d3.scale.linear().range([geneNr*barHeight, 0])
+  //y = d3.scale.quantile().range([0, geneNr*barHeight])
   z = d3.scale.linear().range("white", "blue"); //?
 
   var color = d3.scale.linear()
@@ -86,14 +92,13 @@ var render = function() {
     //.range(["lightgray", "green"]);
     .range(["palegreen", "red"]);
 
-
   // Build the report header
     head = svg.append('foreignObject')
       .attr("class", "myheader")
       .attr('x', 0)
       .attr('y', 0)
       .attr('width', width)
-      .attr('height', 20)
+      .attr('height', barHeight)
       //.attr('fill', )
       .append("xhtml:body")
       .html('<h3 class="goog"> ' + sampleNr + ' Samples RNA Seq Expressions - source: Araport</h3>\
@@ -101,25 +106,26 @@ var render = function() {
 
   // Size our SVG tall enough so that it fits each bar.
   // Width was already defined when we loaded.
-  svg.attr("height", margin.top + (barHeight * geneNr) + margin.bottom);
+  svg.attr("height", margin.top + (barHeight * geneNr) + margin.bottom + barHeight);
   cellWidth=((width - margin.right -margin.left)/sampleNr);
-//  console.log("CW=" + cellWidth + "  max value=" + max);
 
-  }
-
-  // Coerce data to the appropriate types. ??
-  data.forEach(function(d) {
-    d.sra = +d[4];
-    d.gene = +d[0];
-    d.tpm = +d[2];
-    d.cat = +d[5];
-  });
+  //~ // Coerce data to the appropriate types. ??
+  //~ data.forEach(function(d) {
+    //~ d.sra = +d[4];
+    //~ d.gene = +d[0];
+    //~ d.tpm = +d[2];
+    //~ d.cat = +d[5];
+  //~ });
 
   // Compute the scale domains.
   x.domain(d3.extent(data, function(d) { return d[4]; }));
-  //y.domain(d3.extent(data, function(d) { return d[0]; }));
   z.domain([0, d3.max(data, function(d) { return d[2]; })]);
-  y.domain(d3.map(data, function(d){return d[0];}).keys());
+//  y.domain(d3.map(data, function(d){return d[0];}).keys());
+
+  y= d3.scale.quantile()
+  .domain(d3.map(data, function(d){return d[0];}).keys())
+  .range([0, geneNr*barHeight])
+  ;
 
 console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
 //console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
@@ -133,10 +139,12 @@ console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
     .orient("bottom")
     ;
 
-yAxis = d3.svg.axis()
+  yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
     ;
+
+console.log("y= " + y.domain() + "--" + y.range());
 
   // Draw our elements!!
   var bar = svg.selectAll("g")
@@ -146,9 +154,6 @@ yAxis = d3.svg.axis()
   bar.enter().append("g")
       .attr("class", "proteinbar")
       .attr("transform", function(d, i) {
-        //return "translate(" + x(d[0]) + "," + (margin.top + (i * barHeight)) + ")";
-        //return "translate("+(margin.right + i*cellWidth) + "," + (margin.top + barHeight) + ")";
-       // return "translate("+(margin.right + (i%113)*cellWidth) + "," + (margin.top + (i/113)*barHeight).toFixed(0) + ")";
          return "translate("+(margin.right + (i%sampleNr)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/sampleNr) ) + ")";
      });
 
@@ -156,21 +161,19 @@ yAxis = d3.svg.axis()
     .on("mouseover", function(d, i){
       d3.select(this)
           .attr({"xlink:href": mineUrl + PORTAL + d[0]})
-          //.attr({"xlink:href": "http://www.betterthantv.co.uk"})
           .attr({"xlink:title": d[0] +" - " + d[4] + " (" + d[5] + "): " + d[2]});
-
     })
     .append("rect")
     .attr("width", cellWidth)
     .attr("height", barHeight - 1)
-    .style("fill", function(d, i) { return color(d[2])});
+    .style("fill", function(d) { return color(d[2])});
 
-  bar.append("a")
-    .on("mouseover", function(d){
-      d3.select(this)
-          .attr({"xlink:href": mineUrl + PORTAL + d[0]})
-          .attr({"xlink:title": d[0]});
-      })
+  //~ bar.append("a")
+    //~ .on("mouseover", function(d){
+      //~ d3.select(this)
+          //~ .attr({"xlink:href": mineUrl + PORTAL + d[0]})
+          //~ .attr({"xlink:title": d[0]});
+      //~ })
     //~ .append("text")
     //~ // .attr("x", function(d) { return range(d) - 3; })
     //~ //.attr("x", function(i) { return "translate(" + cellWidth * i +");" })
@@ -180,52 +183,50 @@ yAxis = d3.svg.axis()
     //~ .text(function(d) { return (d[2])})
     ;
 
-
   svg.append("g")
       .attr("class", "x axis")
-      .attr("transform", function(d, i) {
-        return "translate( 0 " + "," + (margin.top + 3 * barHeight + 5 ) + ")"})
-      .style("stroke", "gray")
-      .style("stroke-width", 1)
-      .style("shape-rendering", "crispEdges")
-      .attr("ticks", 5)
+      .attr("transform", function() {
+//        return "translate( 0 " + "," + (margin.top + 3 * barHeight + 5 ) + ")"})
+        return "translate( 0 " + "," + (geneNr*barHeight) + ")"})
+      //~ .style("stroke", "gray")
+      //~ .style("stroke-width", 1)
+      //~ .style("shape-rendering", "crispEdges")
+      //~ .attr("ticks", 5)
       .call(xAxis)
 
     .append("text")
       .attr("class", "xlabel")
       .attr("x", margin.right + sampleNr*cellWidth)
-      .attr("y", 15*geneNr)
+      .attr("y", margin.top + barHeight)
       .attr("text-anchor", "end")
-      .text("SRA");
+      .text("SRA (by tissue)");
 
     svg.append("rect")
       .attr("class", "boundingbox")
       .attr("x", 0)
-      .attr("y", (margin.top - 5))
-      .attr("height", (30 + barHeight*geneNr))
-      .attr("width", width - 15)
+      .attr("y", (margin.top - barHeight))
+      .attr("height", (margin.top + barHeight*geneNr))
+      .attr("width", width - 2*cellWidth)
       .style("stroke", "grey")
       .style("fill", "none")
-      .style("stroke-width", 1);
-
+      //.style("stroke-width", 1)
+      ;
 
   svg.append("g")
       .attr("class", "y axis")
-      .attr("transform", function(d, i) {
-        return "translate( 0 " + "," + (margin.top + 1.5 * barHeight ) + ")"})
-        //~ return "translate( 0 " + ", " + 10 + ")"})
-      .style("stroke", "gray")
-      .style("stroke-width", 1)
-      .style("shape-rendering", "crispEdges")
-      .attr("ticks", 16)
+       //~ .attr("transform", function() {
+        //~ return "translate( 0 " + "," + (margin.top + barHeight/2 ) + ")"})
+      .call(d3.svg.axis().scale(y).orient("left"))
       .call(yAxis)
 
     .append("text")
       .attr("class", "ylabel")
       .attr("x", 0)
-      .attr("y", 0)
+      .attr("y", margin.top )
+      //~ .attr("y", function(d, i) { return (2*margin.top + barHeight*Math.floor(i/sampleNr))})
       .attr("text-anchor", "beginning")
-      .text("GENE");
+      .text("GENE")
+      ;
 
 /*
 // Add a legend for the color values.
@@ -269,7 +270,7 @@ var rescale = function() {
   // Use our existing data:
   var bar = svg.selectAll(".proteinbar").data(data)
 
-  bar.attr("transform", function(d, i) {
+  bar.attr("transform", function(d,i) {
         return "translate("+(margin.right + (i%sampleNr)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/sampleNr) ) + ")";
       });
 
@@ -297,7 +298,7 @@ var rescale = function() {
 // re position the label
 svg.select(".xlabel")
     .attr("x", margin.right + sampleNr*cellWidth)
-    .text("SRA");
+    .text("SRA (by tissue)");
 
   // resize the header
   head = svg.select(".myheader").attr("width",newwidth);
