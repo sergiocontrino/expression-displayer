@@ -122,15 +122,16 @@ var render = function() {
   z.domain([0, d3.max(data, function(d) { return d[2]; })]);
 //  y.domain(d3.map(data, function(d){return d[0];}).keys());
 
-  y= d3.scale.quantile()
+  y= d3.scale.ordinal()
   .domain(d3.map(data, function(d){return d[0];}).keys())
-  .range([0, geneNr*barHeight])
+//  .range([0, geneNr*barHeight])
+  .rangeRoundBands([0, geneNr*barHeight], .1);
   ;
 
 console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
 //console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
 console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
-console.log("genes: " + d3.map(data, function(d){return d[0];}).keys());
+//console.log("genes: " + d3.map(data, function(d){return d[0];}).keys());
 //console.log("genes: " + d3.map(data, function(d){return d[0];}).values());
 console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
 
@@ -141,12 +142,26 @@ console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
 
   yAxis = d3.svg.axis()
     .scale(y)
+//    .orient("left")
     .orient("left")
     ;
 
 console.log("y= " + y.domain() + "--" + y.range());
 
-  // Draw our elements!!
+// Draw our elements!!
+
+// BOX
+    svg.append("rect")
+      .attr("class", "boundingbox")
+      .attr("x", 0)
+      .attr("y", (margin.top - barHeight))
+      .attr("height", (margin.top + barHeight*geneNr))
+      .attr("width", width - 2*cellWidth)
+      .style("stroke", "grey")
+      .style("fill", "none")
+      //.style("stroke-width", 1)
+      ;
+
   var bar = svg.selectAll("g")
       .data(data)
 
@@ -168,6 +183,51 @@ console.log("y= " + y.domain() + "--" + y.range());
     .attr("height", barHeight - 1)
     .style("fill", function(d) { return color(d[2])});
 
+// X AXIS
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", function() {
+        return "translate( 0 " + "," + (geneNr*barHeight) + ")"})
+      //~ .style("stroke", "gray")
+      //~ .style("stroke-width", 1)
+      .style("shape-rendering", "crispEdges")
+      .attr("ticks", 5)
+      .call(xAxis)
+
+    .append("text")
+      .attr("class", "xlabel")
+      .attr("x", margin.right + sampleNr*cellWidth)
+      .attr("y", margin.top + barHeight)
+      .attr("text-anchor", "end")
+      .text("SRA (by tissue)");
+
+if (geneNr > 1 ) {
+
+  // Y AXIS
+  svg.append("g")
+      .attr("class", "y axis")
+      .style("shape-rendering", "crispEdges")
+      //.attr("ticks", 5)
+       //~ .attr("transform", function() {
+        //~ return "translate( 0 " + "," + (margin.top + barHeight/2 ) + ")"})
+       .attr("transform", function() {
+//        return "translate( 0 " + "," + (margin.top + barHeight/2 ) + ")"})
+//        return "translate(" + margin.right + "," + (geneNr*barHeight + margin.top)  + ")"})
+        return "translate(" + margin.right + "," + margin.left  + ")"})
+      .call(d3.svg.axis().scale(y).orient("left"))
+      .call(yAxis)
+  // label
+    //~ .append("text")
+      //~ .attr("class", "ylabel")
+      //~ .attr("x", margin.right)
+      //~ .attr("y", margin.top )
+      //~ // .attr("y", function(d, i) { return (2*margin.top + barHeight*Math.floor(i/sampleNr))})
+      //~ .attr("text-anchor", "beginning")
+      //~ .text("GENE")
+      ;
+}
+
+
   //~ bar.append("a")
     //~ .on("mouseover", function(d){
       //~ d3.select(this)
@@ -183,75 +243,35 @@ console.log("y= " + y.domain() + "--" + y.range());
     //~ .text(function(d) { return (d[2])})
     ;
 
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", function() {
-//        return "translate( 0 " + "," + (margin.top + 3 * barHeight + 5 ) + ")"})
-        return "translate( 0 " + "," + (geneNr*barHeight) + ")"})
-      //~ .style("stroke", "gray")
-      //~ .style("stroke-width", 1)
-      //~ .style("shape-rendering", "crispEdges")
-      //~ .attr("ticks", 5)
-      .call(xAxis)
 
-    .append("text")
-      .attr("class", "xlabel")
-      .attr("x", margin.right + sampleNr*cellWidth)
-      .attr("y", margin.top + barHeight)
-      .attr("text-anchor", "end")
-      .text("SRA (by tissue)");
-
-    svg.append("rect")
-      .attr("class", "boundingbox")
-      .attr("x", 0)
-      .attr("y", (margin.top - barHeight))
-      .attr("height", (margin.top + barHeight*geneNr))
-      .attr("width", width - 2*cellWidth)
-      .style("stroke", "grey")
-      .style("fill", "none")
-      //.style("stroke-width", 1)
-      ;
-
-  svg.append("g")
-      .attr("class", "y axis")
-       //~ .attr("transform", function() {
-        //~ return "translate( 0 " + "," + (margin.top + barHeight/2 ) + ")"})
-      .call(d3.svg.axis().scale(y).orient("left"))
-      .call(yAxis)
-
-    .append("text")
-      .attr("class", "ylabel")
-      .attr("x", 0)
-      .attr("y", margin.top )
-      //~ .attr("y", function(d, i) { return (2*margin.top + barHeight*Math.floor(i/sampleNr))})
-      .attr("text-anchor", "beginning")
-      .text("GENE")
-      ;
 
 /*
 // Add a legend for the color values.
   var legend = svg.selectAll(".legend")
-      .data(z.ticks(6).slice(1).reverse())
+      .data(z.ticks(5).slice(1).reverse())
     .enter().append("g")
       .attr("class", "legend")
       //~ .attr("transform", function(d, i) { return "translate(" + (20 + i * 20) + "," + (barHeight*geneNr + 44) + ")"; });
-      .attr("transform", function(d, i) { return "translate(" + (width + 20) + "," + (20 + i * 20) + ")"; });
+      .attr("transform", function(d, i) { return "translate(" + 0 + "," + (20 + i * 20) + ")"; })
+      ;
 
   legend.append("rect")
       .attr("width", cellWidth*2)
-      .attr("height", 20)
-      .style("fill", z);
+      .attr("height", 10)
+      //.style("fill", function(d) { return color(d[2])})
+      .style("fill", "red")
+      ;
 
   legend.append("text")
-      .attr("x", 26)
-      .attr("y", 10)
+      .attr("x", 66)
+      .attr("y", barHeight*geneNr + margin.top + barHeight)
       .attr("dy", ".35em")
       .text(String);
 
   svg.append("text")
       .attr("class", "label")
-      .attr("x", cellWidth*16)
-      .attr("y", barHeight*geneNr + 44)
+      .attr("x", 0)
+      .attr("y", barHeight*geneNr + margin.top + barHeight)
       .attr("dy", ".35em")
       .text("Count");
 */
