@@ -51,7 +51,7 @@ var colors = d3.scale.category20c();
 var color = null;
 
 // margins
-var margin = {top: 60, right: 40, bottom: 30, left: 60}
+var margin = {top: 60, right: 80, bottom: 30, left: 60}
 
 // Original Width
 var width = parseInt(svg.style("width"));
@@ -125,14 +125,13 @@ var render = function() {
   y= d3.scale.ordinal()
   .domain(d3.map(data, function(d){return d[0];}).keys())
 //  .range([0, geneNr*barHeight])
-  .rangeRoundBands([0, geneNr*barHeight], .1);
+//  .rangeRoundBands([0, geneNr*barHeight], .1);
+  .rangeRoundBands([0, geneNr*barHeight]);
   ;
 
 console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
-//console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
+console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
 console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
-//console.log("genes: " + d3.map(data, function(d){return d[0];}).keys());
-//console.log("genes: " + d3.map(data, function(d){return d[0];}).values());
 console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
 
   xAxis = d3.svg.axis()
@@ -205,13 +204,8 @@ if (geneNr > 1 ) {
 
   // Y AXIS
   svg.append("g")
-      .attr("class", "y axis")
-      .style("shape-rendering", "crispEdges")
-      //.attr("ticks", 5)
-       //~ .attr("transform", function() {
-        //~ return "translate( 0 " + "," + (margin.top + barHeight/2 ) + ")"})
-       .attr("transform", function() {
-//        return "translate( 0 " + "," + (margin.top + barHeight/2 ) + ")"})
+      .attr("class", "axis")
+      .attr("transform", function() {
 //        return "translate(" + margin.right + "," + (geneNr*barHeight + margin.top)  + ")"})
         return "translate(" + margin.right + "," + margin.left  + ")"})
       .call(d3.svg.axis().scale(y).orient("left"))
