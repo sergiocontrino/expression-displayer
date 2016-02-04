@@ -1,8 +1,13 @@
-/* script used by the report page of thalemine (report.jsp), if protein
+/* script to be used by the report page of thalemine (report.jsp), if gene or transcript
 //
-// INPUT:   - the protein id (primaryIdentifier)
+// INPUT:   - the gene id (primaryIdentifier) or list name
 //          - the mine url (if not present, defaults to araport)
-// OUTPUT:  bar chart displaying the various domains associated with the protein
+// OUTPUT:  heat map
+//
+// TODO: - rm ticks y axis ?
+//       - add x axis labels (tissue)
+//       - add legend ?
+//       - adapt for list (see op)
 //
 */
 
@@ -77,7 +82,8 @@ var render = function() {
   sampleNr = data.length/geneNr;
 
   if (geneNr == 1 ) {
-    margin.left = 2*barHeight;
+    margin.left = barHeight;
+    margin.right = 2*barHeight;
   }
 
   var color = d3.scale.linear()
