@@ -2,6 +2,8 @@
 //
 // INPUT:   - the gene id (primaryIdentifier) or list name
 //          - the mine url (if not present, defaults to araport)
+//          - the id of the svg element (from the calling page)
+//
 // OUTPUT:  heat map
 //
 // TODO: - rm ticks y axis ?
@@ -16,6 +18,7 @@
 //var DEFAULT_MINEURL = "https://apps.araport.org/thalemine/";
 var DEFAULT_MINEURL = "http://intermine.modencode.org/thalemineval/";
 var DEFAULT_ID = "AT3G24650";
+var DEFAULT_SVG = "echart";
 
 if(typeof mineUrl === 'undefined'){
    mineUrl = DEFAULT_MINEURL;
@@ -24,6 +27,11 @@ if(typeof mineUrl === 'undefined'){
 if(typeof queryId === 'undefined'){
    queryId = DEFAULT_ID;
  };
+
+if(typeof svgId === 'undefined'){
+   svgId = DEFAULT_SVG;
+ };
+
 
 var BASEURL = mineUrl + "/service/query/results?query=";
 
@@ -40,7 +48,7 @@ var QUERY= BASEURL + QUERYSTART + queryId + QUERYEND;
 
 var PORTAL = "portal.do?class=Gene&externalids=";
 
-var svg = d3.select("#echart");
+var svg = d3.select("#" + svgId);
 
 //var colors = d3.scale.category20c();
 // will be set according to range
