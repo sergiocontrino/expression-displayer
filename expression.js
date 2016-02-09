@@ -8,7 +8,7 @@
 //
 // TODO: - add x axis labels (tissue)
 //       - add legend ?
-//       - change mouseover link to sra?
+//       - uso log? (range too wide in list)
 //
 */
 
@@ -151,7 +151,7 @@ var render = function() {
 //console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
 //console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
 console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
-console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
+//console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
 
   xAxis = d3.svg.axis()
     .scale(x)
@@ -163,7 +163,7 @@ console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
     .orient("left")
     ;
 
-console.log("Y: " + y.domain() + "--" + y.range());
+//console.log("Y: " + y.domain() + "--" + y.range());
 
 // Draw our elements!!
 
@@ -237,7 +237,7 @@ console.log("Y: " + y.domain() + "--" + y.range());
       //~ .attr("text-anchor", "beginning")
       //~ .text("GENE")
       ;
-}
+
 // add links to gene report page
 d3.selectAll("text")
     .filter(function(d){ return typeof(d) == "string"; })
@@ -245,6 +245,8 @@ d3.selectAll("text")
     .on("click", function(d){
         document.location.href = mineUrl + GPORTAL + d;
     });
+
+}
 
   //~ bar.append("a")
     //~ .on("mouseover", function(d){
