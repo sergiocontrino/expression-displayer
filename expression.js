@@ -55,7 +55,8 @@ if(typeof listName != 'undefined'){ // set only on a bagDetails page
 
 var query = BASEURL + QUERYSTART + qType + queryId + QUERYEND;
 
-var PORTAL = "portal.do?class=Gene&externalids=";
+var GPORTAL = "portal.do?class=Gene&externalids=";
+var EPORTAL = "portal.do?class=RnaseqExperiment&externalids=";
 
 var svg = d3.select("#" + svgId);
 
@@ -191,7 +192,7 @@ console.log("Y: " + y.domain() + "--" + y.range());
   bar.append("a")
     .on("mouseover", function(d, i){
       d3.select(this)
-          .attr({"xlink:href": mineUrl + PORTAL + d[0]})
+          .attr({"xlink:href": mineUrl + EPORTAL + d[4]})
           .attr({"xlink:title": d[0] +" - " + d[4] + " (" + d[5] + "): " + d[2]});
     })
     .append("rect")
@@ -242,7 +243,7 @@ d3.selectAll("text")
     .filter(function(d){ return typeof(d) == "string"; })
     .style("cursor", "pointer")
     .on("click", function(d){
-        document.location.href = mineUrl + PORTAL + d;
+        document.location.href = mineUrl + GPORTAL + d;
     });
 
   //~ bar.append("a")
