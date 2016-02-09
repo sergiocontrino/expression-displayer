@@ -6,9 +6,9 @@
 //
 // OUTPUT:  heat map
 //
-// TODO: - rm ticks y axis ?
-//       - add x axis labels (tissue)
+// TODO: - add x axis labels (tissue)
 //       - add legend ?
+//       - change mouseover link to sra?
 //
 */
 
@@ -226,6 +226,7 @@ console.log("Y: " + y.domain() + "--" + y.range());
         return "translate(" + margin.left + "," + margin.right  + ")"})
       .call(d3.svg.axis().scale(y).orient("left"))
       .call(yAxis)
+
   // label
     //~ .append("text")
       //~ .attr("class", "ylabel")
@@ -236,7 +237,13 @@ console.log("Y: " + y.domain() + "--" + y.range());
       //~ .text("GENE")
       ;
 }
-
+// add links to gene report page
+d3.selectAll("text")
+    .filter(function(d){ return typeof(d) == "string"; })
+    .style("cursor", "pointer")
+    .on("click", function(d){
+        document.location.href = mineUrl + PORTAL + d;
+    });
 
   //~ bar.append("a")
     //~ .on("mouseover", function(d){
