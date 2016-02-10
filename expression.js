@@ -5,10 +5,11 @@
 //          - the id of the svg element (from the calling page)
 //
 // OUTPUT:  heat map
+//          colouring is done using the log(level+1)
+//          the mouse over displays the actual value of level
 //
 // TODO: - add x axis labels (tissue)
 //       - add legend ?
-//       - uso log? (range too wide in list)
 //
 */
 
@@ -95,7 +96,8 @@ var render = function() {
   if (data.length == 0) {return};
 
   // preliminary setting
-  var max = d3.max(data, function(d) { return +d[2];} );
+  //  var max = d3.max(data, function(d) { return +d[2];} );
+  var max = d3.max(data, function(d) { return Math.log2(d[2]+1);} );
   geneNr = d3.map(data, function(d){return d[0];}).size();
   sampleNr = data.length/geneNr;
 
@@ -140,7 +142,7 @@ var render = function() {
   z = d3.scale.linear().range("white", "blue"); //?
 
   x.domain(d3.extent(data, function(d) { return d[4]; }));
-  z.domain([0, d3.max(data, function(d) { return d[2]; })]);
+  z.domain([0, d3.max(data, function(d) { return Math.log2(d[2]+1); })]);
 
   y = d3.scale.ordinal()
   .domain(d3.map(data, function(d){return d[0];}).keys())
@@ -150,7 +152,7 @@ var render = function() {
 
 //console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
 //console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
-console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
+console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
 //console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
 
   xAxis = d3.svg.axis()
@@ -198,7 +200,8 @@ console.log("z: " + d3.extent(data, function(d) { return d[2]; }));
     .append("rect")
     .attr("width", cellWidth)
     .attr("height", barHeight - 1)
-    .style("fill", function(d) { return color(d[2])});
+    //.style("fill", function(d) { return color(d[2])});
+    .style("fill", function(d) { return color(Math.log2(d[2]+1))});
 
 // X AXIS
   svg.append("g")
