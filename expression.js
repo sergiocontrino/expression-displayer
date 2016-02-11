@@ -20,6 +20,10 @@ var DEFAULT_MINEURL = "http://intermine.modencode.org/thalemineval/";
 var DEFAULT_ID = "AT3G24650";
 var DEFAULT_SVG = "echart";
 
+var legendRectSize = 10;                                  // NEW
+var legendSpacing = 4;                                    // NEW
+
+
 if(typeof mineUrl === 'undefined'){
    mineUrl = DEFAULT_MINEURL;
  };
@@ -97,14 +101,14 @@ var render = function() {
   if (data.length == 0) {return};
 
   // preliminary setting
-  //  var max = d3.max(data, function(d) { return +d[2];} );
+  var maxE = d3.max(data, function(d) { return +d[2];} );
   var max = d3.max(data, function(d) { return Math.log2(d[2]+1);} );
   geneNr = d3.map(data, function(d){return d[0];}).size();
   tissueNr = d3.map(data, function(d){return d[5];}).size();
   sampleNr = data.length/geneNr;
   xNr = d3.map(data, function(d){return d[4];}).size();
 
-console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr);
+console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + " Max:" + maxE + " log:" + max);
   if (geneNr == 1 ) {
     margin.left = barHeight;
     margin.right = 2*barHeight;
@@ -288,36 +292,100 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
 
 
 
-/*
+
 // Add a legend for the color values.
-  var legend = svg.selectAll(".legend")
+  //~ var legend = svg.selectAll(".legend")
+      //~ .data(z.ticks(5).slice(1).reverse())
+    //~ .enter().append("g")
+      //~ .attr("class", "legend")
+      //.attr("transform", function(d, i) { return "translate(" + (20 + i * 20) + "," + (barHeight*geneNr + 44) + ")"; });
+      //~ .attr("transform", function(d, i) { return "translate(" + 0 + "," + (20 + i * 20) + ")"; })
+      //~ ;
+//~
+  //~ legend.append("rect")
+      //~ .attr("width", cellWidth*2)
+      //~ .attr("height", 10)
+      //~ //.style("fill", function(d) { return color(d[2])})
+      //~ .style("fill", "red")
+      //~ ;
+//~
+  //~ legend.append("text")
+      //~ .attr("x", 66)
+      //~ .attr("y", barHeight*geneNr + margin.top + barHeight)
+      //~ .attr("dy", ".35em")
+      //~ .text(String);
+//~
+  //~ svg.append("text")
+      //~ .attr("class", "label")
+      //~ .attr("x", 0)
+      //~ .attr("y", barHeight*geneNr + margin.top + 2*barHeight)
+      //~ .attr("dy", ".35em")
+      //~ .text("Count");
+
+//=========2 =========
+/*
+  var legend = svg.append("g")
+    .attr("class", "legend")
+        //.attr("x", w - 65)
+        //.attr("y", 50)
+    .attr("height", 100)
+    .attr("width", 100)
+    .attr('transform', 'translate(-20,50)')
+
+    legend.selectAll('rect')
       .data(z.ticks(5).slice(1).reverse())
-    .enter().append("g")
-      .attr("class", "legend")
-      //~ .attr("transform", function(d, i) { return "translate(" + (20 + i * 20) + "," + (barHeight*geneNr + 44) + ")"; });
-      .attr("transform", function(d, i) { return "translate(" + 0 + "," + (20 + i * 20) + ")"; })
-      ;
-
-  legend.append("rect")
-      .attr("width", cellWidth*2)
-      .attr("height", 10)
-      //.style("fill", function(d) { return color(d[2])})
-      .style("fill", "red")
-      ;
-
-  legend.append("text")
-      .attr("x", 66)
-      .attr("y", barHeight*geneNr + margin.top + barHeight)
-      .attr("dy", ".35em")
-      .text(String);
-
-  svg.append("text")
-      .attr("class", "label")
+      //.data(dataset)
+      .enter()
+      .append("rect")
       .attr("x", 0)
-      .attr("y", barHeight*geneNr + margin.top + barHeight)
-      .attr("dy", ".35em")
-      .text("Count");
+      .attr("y", function(d, i){ return i *  20;})
+    .attr("width", 10)
+    .attr("height", 10)
+    //~ .style("fill", function(d) {
+        //~ var color = color_hash[dataset.indexOf(d)][1];
+        //~ return color;
+      //~ })
+
+    legend.selectAll('text')
+      .data(z.ticks(5).slice(1).reverse())
+      //.data(dataset)
+      .enter()
+      .append("text")
+    .attr("x", 20)
+      .attr("y", function(d, i){ return i *  20 + 9;})
+    //~ .text(function(d) {
+        //~ var text = color_hash[dataset.indexOf(d)][0];
+        //~ return text;
+      //~ })
+      ;
 */
+//========3 =====================
+
+        var legend = svg.selectAll('.legend')                     // NEW
+          .data(color.domain())                                   // NEW
+          .enter()                                                // NEW
+          .append('g')                                            // NEW
+          .attr('class', 'legend')                                // NEW
+          .attr('transform', function(d, i) {                     // NEW
+            var height = legendRectSize + legendSpacing;          // NEW
+            var offset =  height * color.domain().length / 2;     // NEW
+            //~ var horz = -2 * legendRectSize;                       // NEW
+            //~ var vert = i * height - offset;                       // NEW
+            var horz = i * 3 * barHeight ;                       // NEW
+            var vert = barHeight*geneNr + margin.top + 4*barHeight;                       // NEW
+            return 'translate(' + horz + ',' + vert + ')';        // NEW
+          });                                                     // NEW
+
+        legend.append('rect')                                     // NEW
+          .attr('width', legendRectSize)                          // NEW
+          .attr('height', legendRectSize)                         // NEW
+          .style('fill', color)                                   // NEW
+          .style('stroke', color);                                // NEW
+
+        legend.append('text')                                     // NEW
+          .attr('x', legendRectSize + legendSpacing)              // NEW
+          .attr('y', legendRectSize )//- legendSpacing)              // NEW
+          .text(function(d) { return (Math.pow(2, d) -1).toFixed(2); }); // NEW
 
 }
 
