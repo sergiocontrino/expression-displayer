@@ -20,10 +20,6 @@ var DEFAULT_MINEURL = "http://intermine.modencode.org/thalemineval/";
 var DEFAULT_ID = "AT3G24650";
 var DEFAULT_SVG = "echart";
 
-var legendRectSize = 10;                                  // NEW
-var legendSpacing = 4;                                    // NEW
-
-
 if(typeof mineUrl === 'undefined'){
    mineUrl = DEFAULT_MINEURL;
  };
@@ -109,6 +105,7 @@ var render = function() {
   xNr = d3.map(data, function(d){return d[4];}).size();
 
 console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + " Max:" + maxE + " log:" + max);
+
   if (geneNr == 1 ) {
     margin.left = barHeight;
     margin.right = 2*barHeight;
@@ -165,7 +162,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
 //console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
 //console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
-console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
+//console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
 
   xAxis = d3.svg.axis()
     .scale(x)
@@ -176,9 +173,6 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
     .scale(y)
     .orient("left")
     ;
-
-//console.log("axisY: " + y.domain() + "--" + y.range());
-//console.log("axisX: "  + "--" + x.range());
 
 // Draw our elements!!
 
@@ -275,22 +269,6 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
 
 }
 
-  //~ bar.append("a")
-    //~ .on("mouseover", function(d){
-      //~ d3.select(this)
-          //~ .attr({"xlink:href": mineUrl + PORTAL + d[0]})
-          //~ .attr({"xlink:title": d[0]});
-      //~ })
-    //~ .append("text")
-    //~ // .attr("x", function(d) { return range(d) - 3; })
-    //~ //.attr("x", function(i) { return "translate(" + cellWidth * i +");" })
-    //~ // .attr("x", cellWidth )
-    //~ .attr("y", barHeight / 2)
-    //~ .attr("dy", ".05em")
-    //~ .text(function(d) { return (d[2])})
-    ;
-
-
 
 
 // Add a legend for the color values.
@@ -322,44 +300,10 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
       //~ .attr("dy", ".35em")
       //~ .text("Count");
 
-//=========2 =========
-/*
-  var legend = svg.append("g")
-    .attr("class", "legend")
-        //.attr("x", w - 65)
-        //.attr("y", 50)
-    .attr("height", 100)
-    .attr("width", 100)
-    .attr('transform', 'translate(-20,50)')
 
-    legend.selectAll('rect')
-      .data(z.ticks(5).slice(1).reverse())
-      //.data(dataset)
-      .enter()
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", function(d, i){ return i *  20;})
-    .attr("width", 10)
-    .attr("height", 10)
-    //~ .style("fill", function(d) {
-        //~ var color = color_hash[dataset.indexOf(d)][1];
-        //~ return color;
-      //~ })
+ var legendRectSize = barHeight/2
+ var legendSpacing = legendRectSize/2;
 
-    legend.selectAll('text')
-      .data(z.ticks(5).slice(1).reverse())
-      //.data(dataset)
-      .enter()
-      .append("text")
-    .attr("x", 20)
-      .attr("y", function(d, i){ return i *  20 + 9;})
-    //~ .text(function(d) {
-        //~ var text = color_hash[dataset.indexOf(d)][0];
-        //~ return text;
-      //~ })
-      ;
-*/
-//========3 =====================
 
         var legend = svg.selectAll('.legend')                     // NEW
           .data(color.domain())                                   // NEW
@@ -367,13 +311,9 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
           .append('g')                                            // NEW
           .attr('class', 'legend')                                // NEW
           .attr('transform', function(d, i) {                     // NEW
-            var height = legendRectSize + legendSpacing;          // NEW
-            var offset =  height * color.domain().length / 2;     // NEW
-            //~ var horz = -2 * legendRectSize;                       // NEW
-            //~ var vert = i * height - offset;                       // NEW
-            var horz = i * 3 * barHeight ;                       // NEW
-            var vert = barHeight*geneNr + margin.top + 4*barHeight;                       // NEW
-            return 'translate(' + horz + ',' + vert + ')';        // NEW
+            var h = barHeight + i * 3 * barHeight ;                       // NEW
+            var v = barHeight*geneNr + margin.top + margin.bottom;
+            return 'translate(' + h + ',' + v + ')';        // NEW
           });                                                     // NEW
 
         legend.append('rect')                                     // NEW
@@ -384,8 +324,21 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
 
         legend.append('text')                                     // NEW
           .attr('x', legendRectSize + legendSpacing)              // NEW
-          .attr('y', legendRectSize )//- legendSpacing)              // NEW
-          .text(function(d) { return (Math.pow(2, d) -1).toFixed(2); }); // NEW
+          .attr('y', legendRectSize )
+          .style("font-size","14px")
+          .text(function(d) { return (Math.pow(2, d) -1).toFixed(2); });
+
+// legend box
+    svg.append("rect")
+      .attr("class", "legendbox")
+      .attr("x", legendRectSize)
+      .attr("y", barHeight*geneNr + 2*margin.top +barHeight/2)
+      .attr("height", 1.5*barHeight)
+      .attr("width", 7*barHeight)
+      .style("stroke", "grey")
+      .style("fill", "none")
+      //.style("stroke-width", 1)
+      ;
 
 }
 
