@@ -32,14 +32,14 @@ if(typeof svgId === 'undefined'){
    svgId = DEFAULT_SVG;
  };
 
-console.log(svgId +"--"+mineUrl+" -|- " + queryId);
+console.log(svgId +"--"+mineUrl+"|" + queryId);
 
 var BASEURL = mineUrl + "/service/query/results?query=";
 
 // v4 no description
-//~ var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.expressionLevel%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.tissue%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.tissue%20asc%22%3E%20%3Cconstraint%20path=%22Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
 
-var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.expressionLevel%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.tissue%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.tissue%20asc%22%3E%20%3Cconstraint%20path=%22";
+//~ var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.expressionLevel%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.tissue%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.tissue%20asc%22%3E%20%3Cconstraint%20path=%22";
+var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.expressionLevel%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.tissue%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.tissue%20asc%20Gene.RNASeqExpressions.experiment.SRAaccession%20asc%22%3E%20%3Cconstraint%20path=%22";
 
 var IDS="Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
 
@@ -71,7 +71,7 @@ var barHeight = 20;
 var cellWidth = 10;
 
 // margins
-var margin = {left: 4*barHeight, top: 3*barHeight, right: 3*barHeight, bottom: 2*barHeight};
+var margin = {left: 4*barHeight, top: 3*barHeight, right: 3*barHeight, bottom: 4*barHeight};
 
 // Original Width
 var width = parseInt(svg.style("width"));
@@ -82,6 +82,7 @@ var z = null;
 var y = null;
 
 var geneNr = null;
+var tissueNr = null;
 var sampleNr = null;
 
 var xAxis = null;
@@ -99,8 +100,11 @@ var render = function() {
   //  var max = d3.max(data, function(d) { return +d[2];} );
   var max = d3.max(data, function(d) { return Math.log2(d[2]+1);} );
   geneNr = d3.map(data, function(d){return d[0];}).size();
+  tissueNr = d3.map(data, function(d){return d[5];}).size();
   sampleNr = data.length/geneNr;
+  xNr = d3.map(data, function(d){return d[4];}).size();
 
+console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr);
   if (geneNr == 1 ) {
     margin.left = barHeight;
     margin.right = 2*barHeight;
@@ -144,16 +148,20 @@ var render = function() {
   x.domain(d3.extent(data, function(d) { return d[4]; }));
   z.domain([0, d3.max(data, function(d) { return Math.log2(d[2]+1); })]);
 
+  x = d3.scale.ordinal()
+   .domain(d3.map(data, function(d){return d[4]}).keys())
+   .rangeBands([0, sampleNr*cellWidth]);
+//   .rangeRoundBands([0, sampleNr*cellWidth]);
+  ;
+
   y = d3.scale.ordinal()
-  .domain(d3.map(data, function(d){return d[0];}).keys())
-//  .rangeRoundBands([0, geneNr*barHeight], .1);
- .rangeRoundBands([0, geneNr*barHeight]);
+   .domain(d3.map(data, function(d){return d[0];}).keys())
+   .rangeRoundBands([0, geneNr*barHeight]);
   ;
 
 //console.log("x: " + d3.extent(data, function(d) { return d[4]; }));
 //console.log("y: " + d3.extent(data, function(d) { return d[0]; }));
 console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
-//console.log("genes: " + d3.map(data, function(d){return d[0];}).size());
 
   xAxis = d3.svg.axis()
     .scale(x)
@@ -165,7 +173,8 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
     .orient("left")
     ;
 
-//console.log("Y: " + y.domain() + "--" + y.range());
+//console.log("axisY: " + y.domain() + "--" + y.range());
+//console.log("axisX: "  + "--" + x.range());
 
 // Draw our elements!!
 
@@ -174,7 +183,7 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
       .attr("class", "boundingbox")
       .attr("x", 0)
       .attr("y", (margin.top - barHeight))
-      .attr("height", (margin.top + barHeight*geneNr))
+      .attr("height", (margin.top + barHeight*geneNr + margin.bottom))
       .attr("width", width - 2*cellWidth)
       .style("stroke", "grey")
       .style("fill", "none")
@@ -205,32 +214,51 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
 
 // X AXIS
   svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", function() {
-        return "translate( 0 " + "," + (geneNr*barHeight) + ")"})
-      //~ .style("stroke", "gray")
-      //~ .style("stroke-width", 1)
+    .attr("class", "x axis")
+    .attr("transform", function() {
+      return "translate( " + margin.left + "," + (margin.top + geneNr*barHeight) + ")"})
+//      return "translate( 0 " + "," + (margin.top + geneNr*barHeight) + ")"})
+      //.style("stroke", "blue")
+      //.style("stroke-width", 1)
       .style("shape-rendering", "crispEdges")
-      .attr("ticks", 5)
+      //.attr("ticks", tissueNr)
       .call(xAxis)
+      .selectAll("text")
+        .attr("class", "xticks")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)" )
 
-    .append("text")
-      .attr("class", "xlabel")
-      .attr("x", margin.left + sampleNr*cellWidth)
-      .attr("y", margin.top + barHeight)
-      .attr("text-anchor", "end")
-      .text("SRA (by tissue)");
+      .filter(function(d){ return typeof(d) == "string"; })
+       .style("cursor", "pointer")
+       .on("click", function(d){
+        document.location.href = mineUrl + EPORTAL + d;
+    })
+
+// NOT USED
+    //~ .append("text")
+      //~ .attr("class", "xlabel")
+      //~ .attr("x", margin.left + sampleNr*cellWidth)
+      //~ .attr("y", margin.top + (geneNr+1)*barHeight)
+      //~ .attr("text-anchor", "end")
+      //~ .text("SRA (by tissue)")
+      //~ .attr("transform", "rotate(-5)" )
+      ;
 
  if (geneNr > 1 ) { // don't display if only 1 row
 
   // Y AXIS
   svg.append("g")
-      .attr("class", "axis")
-      .attr("transform", function() {
+     .attr("class", "y axis")
+     .attr("transform", function() {
         return "translate(" + margin.left + "," + margin.right  + ")"})
-      .call(d3.svg.axis().scale(y).orient("left"))
-      .call(yAxis)
-
+     .call(d3.svg.axis().scale(y).orient("left"))
+     .call(yAxis)
+     .selectAll("text")
+      .filter(function(d){ return typeof(d) == "string"; })
+      .style("cursor", "pointer")
+      .on("click", function(d){ document.location.href = mineUrl + GPORTAL + d; })
   // label
     //~ .append("text")
       //~ .attr("class", "ylabel")
@@ -240,14 +268,6 @@ console.log("z: " + d3.extent(data, function(d) { return Math.log2(d[2]+1); }));
       //~ .attr("text-anchor", "beginning")
       //~ .text("GENE")
       ;
-
-// add links to gene report page
-d3.selectAll("text")
-    .filter(function(d){ return typeof(d) == "string"; })
-    .style("cursor", "pointer")
-    .on("click", function(d){
-        document.location.href = mineUrl + GPORTAL + d;
-    });
 
 }
 
@@ -307,8 +327,9 @@ var rescale = function() {
   var newwidth = parseInt(svg.style("width"));
 
  // Our input hasn't changed (domain) but our range has. Rescale it!
-  x.range([0, newwidth]);
+  //x.range([0, newwidth]);
   cellWidth=((newwidth - margin.right - margin.left)/sampleNr);
+  x.rangeBands([0,sampleNr*cellWidth]);
 
   // Use our existing data:
   var bar = svg.selectAll(".proteinbar").data(data)
@@ -335,7 +356,15 @@ var rescale = function() {
 
   // resize the x axis
   xAxis.scale(x);
-  svg.select(".x.axis").call(xAxis)
+  svg.select(".x.axis")
+    .attr("transform", function() {
+      return "translate( " + margin.left + "," + (margin.top + geneNr*barHeight) + ")"})
+    .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-65)")
   ;
 
 // re position the label
