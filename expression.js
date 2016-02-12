@@ -143,16 +143,16 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
   // Compute the scale domains and set the ranges
 
-  x = d3.scale.linear().range([0, width]);
+ // x = d3.scale.linear().range([0, width]);
   z = d3.scale.linear().range("white", "blue"); //?
 
-  x.domain(d3.extent(data, function(d) { return d[4]; }));
+  //x.domain(d3.extent(data, function(d) { return d[4]; }));
   z.domain([0, d3.max(data, function(d) { return Math.log2(d[2]+1); })]);
 
   x = d3.scale.ordinal()
-   .domain(d3.map(data, function(d){return d[4]}).keys())
-   .rangeBands([0, sampleNr*cellWidth]);
-//   .rangeRoundBands([0, sampleNr*cellWidth]);
+    .domain(d3.map(data, function(d){return d[5]}).keys())
+//    .rangeBands([0, sampleNr*cellWidth])
+    .range([0, 7*cellWidth, 9*cellWidth, 16*cellWidth, 40*cellWidth, 85*cellWidth, 87*cellWidth, 96*cellWidth, 103*cellWidth, 106*cellWidth, 110*cellWidth, sampleNr*cellWidth])
   ;
 
   y = d3.scale.ordinal()
@@ -221,6 +221,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
       .style("shape-rendering", "crispEdges")
       //.attr("ticks", tissueNr)
       .call(xAxis)
+
       .selectAll("text")
         .attr("class", "xticks")
         .style("text-anchor", "end")
@@ -305,25 +306,25 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
  var legendSpacing = legendRectSize/2;
 
 
-        var legend = svg.selectAll('.legend')                     // NEW
-          .data(color.domain())                                   // NEW
-          .enter()                                                // NEW
-          .append('g')                                            // NEW
-          .attr('class', 'legend')                                // NEW
-          .attr('transform', function(d, i) {                     // NEW
-            var h = barHeight + i * 3 * barHeight ;                       // NEW
+        var legend = svg.selectAll('.legend')
+          .data(color.domain())
+          .enter()
+          .append('g')
+          .attr('class', 'legend')
+          .attr('transform', function(d, i) {
+            var h = barHeight + i * 3 * barHeight ;
             var v = barHeight*geneNr + margin.top + margin.bottom;
-            return 'translate(' + h + ',' + v + ')';        // NEW
-          });                                                     // NEW
+            return 'translate(' + h + ',' + v + ')';
+          });
 
-        legend.append('rect')                                     // NEW
-          .attr('width', legendRectSize)                          // NEW
-          .attr('height', legendRectSize)                         // NEW
-          .style('fill', color)                                   // NEW
-          .style('stroke', color);                                // NEW
+        legend.append('rect')
+          .attr('width', legendRectSize)
+          .attr('height', legendRectSize)
+          .style('fill', color)
+          .style('stroke', color);
 
-        legend.append('text')                                     // NEW
-          .attr('x', legendRectSize + legendSpacing)              // NEW
+        legend.append('text')
+          .attr('x', legendRectSize + legendSpacing)
           .attr('y', legendRectSize )
           .style("font-size","14px")
           .text(function(d) { return (Math.pow(2, d) -1).toFixed(2); });
@@ -377,6 +378,8 @@ var rescale = function() {
 
   // resize the x axis
   xAxis.scale(x);
+  x.range([0, 7*cellWidth, 9*cellWidth, 16*cellWidth, 40*cellWidth, 85*cellWidth, 87*cellWidth, 96*cellWidth, 103*cellWidth, 106*cellWidth, 110*cellWidth, sampleNr*cellWidth])
+  ;
   svg.select(".x.axis")
     .attr("transform", function() {
       return "translate( " + margin.left + "," + (margin.top + geneNr*barHeight) + ")"})
