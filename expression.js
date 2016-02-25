@@ -83,6 +83,8 @@ var sampleNr = null;
 
 var xAxis = null;
 var yAxis = null;
+var linearLegend = null;
+var legendLinear = null;
 
 var render = function() {
 
@@ -267,53 +269,52 @@ svg.append("g")
 
 // USING d3-legend
 
-var linear = d3.scale.linear()
-  .domain([0,maxE])
+  linearLegend = d3.scale.linear()
+               .domain([0,maxE])
 //  .range(["rgb(46, 73, 123)", "rgb(71, 187, 94)"]);
-  .range(["palegreen", "red"]);
+               .range(["palegreen", "red"]);
 
 svg.append("g")
   .attr("class", "legendLinear")
   .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")");
 
-var legendLinear = d3.legend.color()
-  .shapeWidth(4*cellWidth)
+  legendLinear = d3.legend.color()
+   .shapeWidth(4*cellWidth)
   .shapeHeight(10)
   .cells(10)
   .orient('horizontal')
-  .scale(linear);
+  .scale(linearLegend);
 
 svg.select(".legendLinear")
   .call(legendLinear);
 
 
-/* works */
+/* works, just min and max
  var legendRectSize = barHeight/2
  var legendSpacing = legendRectSize/2;
 
+ var legend = svg.selectAll('.legend')
+    .data(color.domain())
+    .enter()
+    .append('g')
+    .attr('class', 'legend')
+    .attr('transform', function(d, i) {
+        var h = barHeight + i * 3 * barHeight ;
+        var v = barHeight*geneNr + margin.top + margin.bottom;
+        return 'translate(' + h + ',' + v + ')';
+     });
 
-        var legend = svg.selectAll('.legend')
-          .data(color.domain())
-          .enter()
-          .append('g')
-          .attr('class', 'legend')
-          .attr('transform', function(d, i) {
-            var h = barHeight + i * 3 * barHeight ;
-            var v = barHeight*geneNr + margin.top + margin.bottom;
-            return 'translate(' + h + ',' + v + ')';
-          });
+  legend.append('rect')
+    .attr('width', legendRectSize)
+    .attr('height', legendRectSize)
+    .style('fill', color)
+    .style('stroke', color);
 
-        legend.append('rect')
-          .attr('width', legendRectSize)
-          .attr('height', legendRectSize)
-          .style('fill', color)
-          .style('stroke', color);
-
-        legend.append('text')
-          .attr('x', legendRectSize + legendSpacing)
-          .attr('y', legendRectSize )
-          .style("font-size","14px")
-          .text(function(d) { return (Math.pow(2, d) -1).toFixed(2); });
+  legend.append('text')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize )
+    .style("font-size","14px")
+    .text(function(d) { return (Math.pow(2, d) -1).toFixed(2); });
 
 // legend box
     svg.append("rect")
@@ -326,7 +327,7 @@ svg.select(".legendLinear")
       .style("fill", "none")
       //.style("stroke-width", 1)
       ;
-
+*/
 
 }
 
@@ -383,6 +384,19 @@ var rescale = function() {
         document.location.href = mineUrl + EPORTAL + d;
     })
 ;
+
+// resize legend
+
+svg.select(".legendLinear")
+   .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")")
+   .call(
+     d3.legend.color()
+      .shapeWidth(4*cellWidth)
+      .shapeHeight(10)
+      .cells(10)
+      .orient('horizontal')
+      .scale(linearLegend)
+   );
 
   // resize the header
   head = svg.select(".myheader").attr("width",newwidth);
