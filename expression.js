@@ -376,12 +376,13 @@ var rescale = function() {
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
       .attr("transform", "rotate(-65)")
-  ;
 
-// re position the label
-svg.select(".xlabel")
-    .attr("x", margin.left + sampleNr*cellWidth)
-    .text("SRA (by tissue)");
+      .filter(function(d){ return typeof(d) == "string"; })
+       .style("cursor", "pointer")
+       .on("click", function(d){
+        document.location.href = mineUrl + EPORTAL + d;
+    })
+;
 
   // resize the header
   head = svg.select(".myheader").attr("width",newwidth);
