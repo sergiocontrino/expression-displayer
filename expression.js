@@ -149,6 +149,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
   //x.domain(d3.extent(data, function(d) { return d[4]; }));
   z.domain([0, d3.max(data, function(d) { return Math.log2(d[2]+1); })]);
 
+// Hardcoded for the tissues!!
   x = d3.scale.ordinal()
     .domain(d3.map(data, function(d){return d[5]}).keys())
 //    .rangeBands([0, sampleNr*cellWidth])
@@ -235,6 +236,21 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
         document.location.href = mineUrl + EPORTAL + d;
     })
 
+var xAxisGrid = xAxis.ticks(tissueNr)
+    .tickSize(-geneNr*barHeight, 0)
+    .tickFormat("")
+    //.stroke("blue")
+    //.stroke-width("3px")
+    .orient("top")
+    ;
+
+svg.append("g")
+    .classed('x', true)
+    .classed('grid', true)
+    .call(xAxisGrid)
+    ;
+
+
 // NOT USED
     //~ .append("text")
       //~ .attr("class", "xlabel")
@@ -301,7 +317,32 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
       //~ .attr("dy", ".35em")
       //~ .text("Count");
 
+// USING d3-legend
 
+var linear = d3.scale.linear()
+  .domain([0,maxE])
+//  .range(["rgb(46, 73, 123)", "rgb(71, 187, 94)"]);
+  .range(["palegreen", "red"]);
+
+//var svg = d3.select("svg");
+
+svg.append("g")
+  .attr("class", "legendLinear")
+  .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")");
+//  .attr("transform", "translate(20,20)");
+
+var legendLinear = d3.legend.color()
+  .shapeWidth(4*cellWidth)
+  .shapeHeight(10)
+  .cells(10)
+  .orient('horizontal')
+  .scale(linear);
+
+svg.select(".legendLinear")
+  .call(legendLinear);
+
+
+/* works */
  var legendRectSize = barHeight/2
  var legendSpacing = legendRectSize/2;
 
@@ -340,6 +381,65 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
       .style("fill", "none")
       //.style("stroke-width", 1)
       ;
+//====
+
+//~ // Add a legend for the color values.
+//~ var legend = svg.selectAll(".legend")
+  //~ .data(z.ticks())
+  //~ .enter()
+  //~ .append("g")
+  //~ .attr('class', 'legend')
+  //~ .attr('transform', function(d, i) {
+            //~ var h = barHeight + i * 3 * barHeight ;
+            //~ var v = barHeight*geneNr + margin.top + margin.bottom;
+            //~ return 'translate(' + h + ',' + v + ')';
+          //~ });
+//~
+//~ legend.append("rect")
+//~ .attr({
+  //~ 'width': 20,
+  //~ 'height': barHeight/2,
+  //~ 'fill': function(d) { return color(Math.log2(d[2]+1))}
+//~ });
+//~
+//~ legend.append("text")
+//~ .attr({
+  //~ 'font-size': 10,
+  //~ 'x': 0,
+  //~ 'y': 30
+//~ })
+//~ .text(String);
+//~
+//~ svg.append("text")
+//~ .attr({
+  //~ 'class': 'label',
+  //~ 'font-size': 10,
+  //~ 'x': 0,
+  //~ 'y': barHeight + margin.bottom - 45
+//~ })
+//~ .text('Relative expression');
+//~
+//~
+//~ var linear = d3.scale.linear()
+  //~ .domain([0,10])
+  //~ .range(["rgb(46, 73, 123)", "rgb(71, 187, 94)"]);
+//~
+//~ var svg = d3.select("svg");
+//~
+//~ svg.append("g")
+  //~ .attr("class", "legendLinear")
+  //~ .attr("transform", "translate(20,20)");
+//~
+//~ var legendLinear = d3.legend.color()
+  //~ .shapeWidth(30)
+  //~ .cells(10)
+  //~ .orient('horizontal')
+  //~ .scale(linear);
+//~
+//~ svg.select(".legendLinear")
+  //~ .call(legendLinear);
+//~
+
 
 }
 
