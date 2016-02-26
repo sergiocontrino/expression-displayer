@@ -222,19 +222,21 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
       //.attr("ticks", tissueNr)
       .call(xAxis)
 
-      .selectAll("text")
-        .attr("class", "xticks")
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-65)" )
-
-      .filter(function(d){ return typeof(d) == "string"; })
-       .style("cursor", "pointer")
-       .on("click", function(d){
-        document.location.href = mineUrl + EPORTAL + d;
-    })
-
+    .selectAll("text")
+      .attr("class", "xticks")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-65)" )
+    // to link from axis labels
+    // removed because we are displaying an attribute (tissue)
+    //
+    //  .filter(function(d){ return typeof(d) == "string"; })
+    //  .style("cursor", "pointer")
+    //  .on("click", function(d){
+    //    document.location.href = mineUrl + EPORTAL + d;
+    //  })
+   ;
 /* not working, to add bars
 var xAxisGrid = xAxis.ticks(tissueNr)
     .tickSize(-geneNr*barHeight, 0)
@@ -270,23 +272,24 @@ svg.append("g")
 // USING d3-legend
 
   linearLegend = d3.scale.linear()
-               .domain([0,maxE])
-//  .range(["rgb(46, 73, 123)", "rgb(71, 187, 94)"]);
-               .range(["palegreen", "red"]);
+    .domain([0,maxE])
+    //.range(["rgb(46, 73, 123)", "rgb(71, 187, 94)"]);
+    .range(["palegreen", "red"]);
 
-svg.append("g")
-  .attr("class", "legendLinear")
-  .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")");
+  svg.append("g")
+    .attr("class", "legendLinear")
+    .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")");
 
   legendLinear = d3.legend.color()
-   .shapeWidth(4*cellWidth)
-  .shapeHeight(10)
-  .cells(10)
-  .orient('horizontal')
-  .scale(linearLegend);
+    .shapeWidth(4*cellWidth)
+    .shapeHeight(10)
+    .cells(10)
+    .orient('horizontal')
+    .labelFormat(d3.format("f"))  // no decimal
+    .scale(linearLegend);
 
-svg.select(".legendLinear")
-  .call(legendLinear);
+  svg.select(".legendLinear")
+    .call(legendLinear);
 
 
 /* works, just min and max
@@ -395,6 +398,7 @@ svg.select(".legendLinear")
       .shapeHeight(10)
       .cells(10)
       .orient('horizontal')
+      .labelFormat(d3.format("f"))  // no decimal
       .scale(linearLegend)
    );
 
