@@ -5,11 +5,11 @@
 //          - the id of the svg element (from the calling page)
 //
 // OUTPUT:  heat map
-//          colouring is done using the log(level+1)
+//          colouring is done using the log2(level+1)
 //          the mouse over displays the actual value of level
 //
-// TODO: - add x axis labels (tissue)
-//       - add legend ?
+// TODO: - scale text in legend?
+//       - add bands for tissues (and revert to sra for x axis?)
 //
 */
 
@@ -64,7 +64,8 @@ var color = null;
 
 // the display unit:
 var barHeight = 20;
-var cellWidth = 10;
+
+var cellWidth = barHeight/2; // default value
 
 // margins
 var margin = {left: 4*barHeight, top: 3*barHeight, right: 3*barHeight, bottom: 4*barHeight};
@@ -127,7 +128,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
   // Size our SVG tall enough so that it fits each bar.
   // Width was already defined when we loaded.
-  svg.attr("height", margin.top + (barHeight * geneNr) + margin.bottom + barHeight);
+  svg.attr("height", margin.top + (barHeight * geneNr) + margin.bottom + 2*barHeight);
   cellWidth=((width - margin.right -margin.left)/sampleNr);
 
   // Coerce data to the appropriate types. NOT USED
@@ -140,11 +141,11 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
  // Compute the scale domains and set the ranges
 
- // x = d3.scale.linear().range([0, width]);
   z = d3.scale.linear().range("white", "blue"); //?
-
-  //x.domain(d3.extent(data, function(d) { return d[4]; }));
   z.domain([0, d3.max(data, function(d) { return Math.log2(d[2]+1); })]);
+
+  //x = d3.scale.linear().range([0, width]);
+  //x.domain(d3.extent(data, function(d) { return d[4]; }));
 
 // Hardcoded for the tissues!!
   x = d3.scale.ordinal()
@@ -237,16 +238,16 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
     //    document.location.href = mineUrl + EPORTAL + d;
     //  })
    ;
-/* not working, to add bars
-var xAxisGrid = xAxis.ticks(tissueNr)
+
+   /* not working, to add bars
+   var xAxisGrid = xAxis.ticks(tissueNr)
     .tickSize(-geneNr*barHeight, 0)
     .tickFormat("")
     //.stroke("blue")
     //.stroke-width("3px")
     .orient("top")
     ;
-
-svg.append("g")
+   svg.append("g")
     .classed('x', true)
     .classed('grid', true)
     .call(xAxisGrid)
@@ -278,14 +279,18 @@ svg.append("g")
 
   svg.append("g")
     .attr("class", "legendLinear")
-    .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")");
+    .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")")
+    .attr("data-style-padding", 0)
+    .style("font-size","10px")
+    ;
 
   legendLinear = d3.legend.color()
     .shapeWidth(4*cellWidth)
     .shapeHeight(10)
     .cells(10)
     .orient('horizontal')
-    .labelFormat(d3.format("f"))  // no decimal
+    //.labelFormat(d3.format("f"))  // no decimal
+    .title("Expression value (Transcript Per Million)")
     .scale(linearLegend);
 
   svg.select(".legendLinear")
@@ -389,7 +394,6 @@ var rescale = function() {
 ;
 
 // resize legend
-
 svg.select(".legendLinear")
    .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")")
    .call(
@@ -398,7 +402,8 @@ svg.select(".legendLinear")
       .shapeHeight(10)
       .cells(10)
       .orient('horizontal')
-      .labelFormat(d3.format("f"))  // no decimal
+      //.labelFormat(d3.format("f"))  // no decimal
+      .title("Expression value (Transcript Per Million)")
       .scale(linearLegend)
    );
 
