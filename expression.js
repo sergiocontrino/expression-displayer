@@ -62,8 +62,9 @@ var svg = d3.select("#" + svgId);
 // will be set according to range
 var color = null;
 
-// the display unit:
+// the display units:
 var barHeight = 20;
+var legendCells = 8;
 
 var cellWidth = barHeight/2; // default value
 
@@ -147,7 +148,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
   //x = d3.scale.linear().range([0, width]);
   //x.domain(d3.extent(data, function(d) { return d[4]; }));
 
-// Hardcoded for the tissues!!
+// HARD CODED for the tissues!!
   x = d3.scale.ordinal()
     .domain(d3.map(data, function(d){return d[5]}).keys())
     .range([0, 7*cellWidth, 9*cellWidth, 16*cellWidth, 40*cellWidth, 85*cellWidth, 87*cellWidth, 96*cellWidth, 103*cellWidth, 106*cellWidth, 110*cellWidth, sampleNr*cellWidth])
@@ -286,8 +287,8 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
   legendLinear = d3.legend.color()
     .shapeWidth(4*cellWidth)
-    .shapeHeight(10)
-    .cells(10)
+    .shapeHeight(barHeight/2)
+    .cells(legendCells)
     .orient('horizontal')
     //.labelFormat(d3.format("f"))  // no decimal
     .title("Expression value (Transcript Per Million)")
@@ -399,8 +400,8 @@ svg.select(".legendLinear")
    .call(
      d3.legend.color()
       .shapeWidth(4*cellWidth)
-      .shapeHeight(10)
-      .cells(10)
+      .shapeHeight(barHeight/2)
+      .cells(legendCells)
       .orient('horizontal')
       //.labelFormat(d3.format("f"))  // no decimal
       .title("Expression value (Transcript Per Million)")
