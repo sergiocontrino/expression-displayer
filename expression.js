@@ -109,12 +109,8 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
   if (geneNr == 1 ) {
     margin.left = barHeight;
     margin.right = 2*barHeight;
-  }
+//  }
 
-  var color = d3.scale.linear()
-    .domain([0, max])
-    //.range(["lightgray", "green"]);
-    .range(["palegreen", "red"]);
 
   // Build the report header
     head = svg.append('foreignObject')
@@ -127,6 +123,13 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
       .append("xhtml:body")
       .html('<h3 class="goog"> ' + sampleNr + ' Samples RNA Seq Expression - source: <a href="https://www.araport.org/">Araport</a></h3>\
              <p> <p>');
+}
+
+  var color = d3.scale.linear()
+    .domain([0, max])
+    //.range(["lightgray", "green"]);
+    .range(["palegreen", "red"]);
+
 
   // Size our SVG tall enough so that it fits each bar.
   // Width was already defined when we loaded.
@@ -257,6 +260,8 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
     ;
 */
 
+
+
  if (geneNr > 1 ) { // don't display if only 1 row
 
   // Y AXIS
@@ -284,7 +289,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
     .attr("class", "legendLinear")
 //    .attr("transform", "translate(" + (margin.left + 40*cellWidth) +","+ (barHeight*geneNr + 2*margin.top) +")")
     .attr("transform", "translate(" + (margin.left + sampleNr*cellWidth + halfBar) +","+ (margin.top) +")")
-    .attr("data-style-padding", 0)
+    //.attr("data-style-padding", 0)
     .style("font-size", halfBar+"px")
     ;
 
@@ -297,7 +302,6 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
     .ascending('true')
     .labelOffset(5)
     //.labelFormat(d3.format("f"))  // no decimal
-    //.title("Expression value (Transcripts Per Million)")
     .title("TPM")
     .scale(linearLegend)
     //.on("cellover", function(d){alert("Transcript Per Million " + d);})
@@ -305,7 +309,6 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
   svg.select(".legendLinear")
     .call(legendLinear);
-
 
 /* works, just min and max
  var legendRectSize = halfBar
@@ -346,6 +349,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
       //.style("stroke-width", 1)
       ;
 */
+
 
 }
 
