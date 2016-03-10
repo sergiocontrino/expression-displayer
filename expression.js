@@ -197,7 +197,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
   // New bars:
   bar.enter().append("g")
-    .attr("class", "proteinbar")
+    .attr("class", "exbar")
     .attr("transform", function(d, i) {
       return "translate("+(margin.left + (i%sampleNr)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/sampleNr) ) + ")";
     });
@@ -299,6 +299,25 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
 
   svg.select(".legendLinear")
     .call(legendLinear);
+
+  // Explanatory text
+   svg.append("text")
+    .attr("class", "note1")
+    .attr("x", margin.left + 40*cellWidth)
+    .attr("y", barHeight*(geneNr + 1) + 2*margin.top)
+    .style("font-size", 1.2*halfBar+"px")
+    .style("fill", "gray")
+    .text("Levels expressed in Transcript Per Million (TPM).")
+    ;
+   svg.append("text")
+    .attr("class", "note2")
+    .attr("x", margin.left + 40*cellWidth)
+    .attr("y", barHeight*(geneNr+2) + 2*margin.top)
+    .style("font-size", 1.2*halfBar+"px")
+    .style("fill", "gray")
+    .text("The colouring is a log2 scale of TPM.")
+    ;
+
 }
 
 var rescale = function() {
@@ -312,7 +331,7 @@ var rescale = function() {
   x.rangeBands([0,sampleNr*cellWidth]);
 
   // Use our existing data:
-  var bar = svg.selectAll(".proteinbar").data(data)
+  var bar = svg.selectAll(".exbar").data(data)
 
   bar.attr("transform", function(d,i) {
         return "translate("+(margin.left + (i%sampleNr)*cellWidth) + "," + (margin.top + barHeight*Math.floor(i/sampleNr) ) + ")";
@@ -368,6 +387,13 @@ svg.select(".legendLinear")
   // resize the header
   head = svg.select(".myheader").attr("width",newwidth);
 
+  // resize the notes (only x changes)
+  svg.select(".note1")
+    .attr("x", margin.left + 40*cellWidth)
+    ;
+   svg.select(".note2")
+    .attr("x", margin.left + 40*cellWidth)
+    ;
 }
 
 // Fetch our JSON and feed it to the draw function
