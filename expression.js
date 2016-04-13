@@ -12,10 +12,8 @@
 //
 */
 
-// to set the mine: could be done inside js with injection
-// here using a parameter from jsp
-//var DEFAULT_MINEURL = "https://apps.araport.org/thalemine/";
-var DEFAULT_MINEURL = "http://intermine.modencode.org/thalemineval/";
+// DEFAULTS
+var DEFAULT_MINEURL = "https://apps.araport.org/thalemine/";
 var DEFAULT_ID = "AT3G24650";
 var DEFAULT_SVG = "echart";
 
@@ -31,27 +29,59 @@ if(typeof svgId === 'undefined'){
    svgId = DEFAULT_SVG;
  };
 
-console.log(svgId +"--"+mineUrl+"|" + queryId);
-
-var BASEURL = mineUrl + "/service/query/results?query=";
-
-var QUERYSTART = "%3Cquery%20name=%22%22%20model=%22genomic%22%20view=%22Gene.primaryIdentifier%20Gene.symbol%20Gene.RNASeqExpressions.expressionLevel%20Gene.RNASeqExpressions.unit%20Gene.RNASeqExpressions.experiment.SRAaccession%20Gene.RNASeqExpressions.experiment.tissue%22%20longDescription=%22%22%20sortOrder=%22Gene.primaryIdentifier%20asc%20Gene.RNASeqExpressions.experiment.tissue%20asc%20Gene.RNASeqExpressions.experiment.SRAaccession%20asc%22%3E%20%3Cconstraint%20path=%22";
-
-var IDS="Gene.primaryIdentifier%22%20op=%22=%22%20value=%22"
-
-var LIST="Gene%22%20op=%22IN%22%20value=%22"
-
-var qType=IDS;  // default query type: ids
-
-var QUERYEND="%22/%3E%20%3C/query%3E";
+var constraintOp = '=';
+var constraintPath = 'primaryIdentifier';
 
 if(typeof listName != 'undefined'){ // set only on a bagDetails page
-    qType = LIST;
     queryId = listName;
+    constraintOp = 'IN';
+    constraintPath = 'Gene';
  };
 
-var query = BASEURL + QUERYSTART + qType + queryId + QUERYEND;
+console.log(svgId + " " + mineUrl + " " + queryId + " (" + constraintOp + " " + constraintPath + ")");
 
+if ($SERVICE == undefined || $SERVICE == null) {
+  var $SERVICE = new imjs.Service({root: mineUrl + 'service/'});
+}
+
+
+// QUERY (valid both for list and id)
+var query    = {
+  "from": "Gene",
+  "select": [
+    "primaryIdentifier",
+    "symbol",
+    "RNASeqExpressions.expressionLevel",
+    "RNASeqExpressions.unit",
+    "RNASeqExpressions.experiment.SRAaccession",
+    "RNASeqExpressions.experiment.tissue"
+  ],
+  "orderBy": [
+    {
+      "path": "primaryIdentifier",
+      "direction": "ASC"
+    },
+    {
+      "path": "Gene.RNASeqExpressions.experiment.tissue",
+      "direction": "ASC"
+    },
+    {
+      "path": "Gene.RNASeqExpressions.experiment.SRAaccession",
+      "direction": "ASC"
+    }
+  ],
+  "where": [
+    {
+     "path": constraintPath,
+      "op": constraintOp,
+      "value": queryId,
+      "code": "A"
+    }
+  ]
+};
+
+
+// Displayer defaults and constants
 var GPORTAL = "portal.do?class=Gene&externalids=";
 var EPORTAL = "portal.do?class=RnaseqExperiment&externalids=";
 
@@ -88,6 +118,7 @@ var yAxis = null;
 var linearLegend = null;
 var legendLinear = null;
 
+// rendering function ----------------------------------------
 var render = function() {
 
   // when no results don't display anything
@@ -397,11 +428,16 @@ svg.select(".legendLinear")
 }
 
 // Fetch our JSON and feed it to the draw function
-d3.json(query, function(returned) {
-  data = returned.results;
+$SERVICE.rows(query).then(function(rows) {
+  data = rows;
   render();
 });
 
+// was:
+//d3.json(query, function(returned) {
+//  data = returned.results;
+//  render();
+//});
 
 // Rescale it when the window resizes:
 d3.select(window).on("resize", rescale);
