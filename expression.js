@@ -16,6 +16,7 @@
 var DEFAULT_MINEURL = "https://apps.araport.org/thalemine/";
 var DEFAULT_ID = "AT3G24650";
 var DEFAULT_SVG = "echart";
+var DEFAULT_TYPE = "Gene";
 
 if(typeof mineUrl === 'undefined'){
    mineUrl = DEFAULT_MINEURL;
@@ -29,6 +30,10 @@ if(typeof svgId === 'undefined'){
    svgId = DEFAULT_SVG;
  };
 
+if(typeof type === 'undefined'){
+   type  = DEFAULT_TYPE;
+ };
+
 var constraintOp = '=';
 var constraintPath = 'primaryIdentifier';
 
@@ -38,11 +43,11 @@ if(typeof listName != 'undefined'){ // set only on a bagDetails page
     constraintPath = 'Gene';
  };
 
-console.log(svgId + " " + mineUrl + " " + queryId + " (" + constraintOp + " " + constraintPath + ")");
+console.log(type + ": " + svgId + " " + mineUrl + " " + queryId + " (" + constraintOp + " " + constraintPath + ")");
 
 // QUERY (valid both for list and id)
 var query    = {
-  "from": "Gene",
+  "from": type,
   "select": [
     "primaryIdentifier",
     "symbol",
@@ -57,11 +62,11 @@ var query    = {
       "direction": "ASC"
     },
     {
-      "path": "Gene.RNASeqExpressions.experiment.tissue",
+      "path": type + ".RNASeqExpressions.experiment.tissue",
       "direction": "ASC"
     },
     {
-      "path": "Gene.RNASeqExpressions.experiment.SRAaccession",
+      "path": type + ".RNASeqExpressions.experiment.SRAaccession",
       "direction": "ASC"
     }
   ],
@@ -77,7 +82,7 @@ var query    = {
 
 
 // Displayer defaults and constants
-var GPORTAL = "portal.do?class=Gene&externalids=";
+var GPORTAL = "portal.do?class=" + type + "&externalids=";
 var EPORTAL = "portal.do?class=RnaseqExperiment&externalids=";
 
 var svg = d3.select("#" + svgId);
@@ -232,7 +237,7 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
     .on("mouseover", function(d, i){
       d3.select(this)
         .attr({"xlink:href": mineUrl + EPORTAL + d[4]})
-        .attr({"xlink:title": d[0] +" - " + d[4] + " (" + d[5] + "): " + d[2]});
+        .attr({"xlink:title": d[0] + "[" + d[1] + "]" + " - " + d[4] + " (" + d[5] + "): " + d[2]});
     })
     .append("rect")
     .attr("width", cellWidth)
