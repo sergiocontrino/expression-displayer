@@ -40,7 +40,7 @@ var constraintPath = 'primaryIdentifier';
 if(typeof listName != 'undefined'){ // set only on a bagDetails page
     queryId = listName;
     constraintOp = 'IN';
-    constraintPath = 'Gene';
+    constraintPath = type;
  };
 
 console.log(type + ": " + svgId + " " + mineUrl + " " + queryId + " (" + constraintOp + " " + constraintPath + ")");
@@ -430,9 +430,10 @@ svg.select(".legendLinear")
 // Fetch our JSON and feed it to the draw function
 
 var myService = null;
-if(typeof token === 'undefined' || token === null){ // never happens from the webapp
+if(typeof token === 'undefined' || token === null){
+  // never happens from the webapp, just for local test
    myService = new imjs.Service({root: mineUrl + 'service/'});
- } else {
+ } else { // normal workings
    myService = new imjs.Service({root: mineUrl, token: token});
 };
 
