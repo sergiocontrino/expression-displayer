@@ -16,6 +16,8 @@
 var DEFAULT_MINEURL = "https://apps.araport.org/thalemine/";
 var DEFAULT_ID = "AT3G24650";
 var DEFAULT_SVG = "echart";
+var DEFAULT_TOKEN = "notoken";
+
 
 if(typeof mineUrl === 'undefined'){
    mineUrl = DEFAULT_MINEURL;
@@ -29,6 +31,10 @@ if(typeof svgId === 'undefined'){
    svgId = DEFAULT_SVG;
  };
 
+if(typeof token === 'undefined'){
+   token = DEFAULT_TOKEN;
+ };
+
 var constraintOp = '=';
 var constraintPath = 'primaryIdentifier';
 
@@ -39,11 +45,6 @@ if(typeof listName != 'undefined'){ // set only on a bagDetails page
  };
 
 console.log(svgId + " " + mineUrl + " " + queryId + " (" + constraintOp + " " + constraintPath + ")");
-
-if ($SERVICE == undefined || $SERVICE == null) {
-  var $SERVICE = new imjs.Service({root: mineUrl + 'service/'});
-}
-
 
 // QUERY (valid both for list and id)
 var query    = {
@@ -428,7 +429,9 @@ svg.select(".legendLinear")
 }
 
 // Fetch our JSON and feed it to the draw function
-$SERVICE.rows(query).then(function(rows) {
+var myService = new imjs.Service({root: mineUrl, token: token});
+
+myService.rows(query).then(function(rows) {
   data = rows;
   render();
 });
