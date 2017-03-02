@@ -180,15 +180,17 @@ console.log("s:" + sampleNr + " t:" + tissueNr + " g:" + geneNr + " x:" + xNr + 
   //x.domain(d3.extent(data, function(d) { return d[4]; }));
 
 // HARD CODED for the tissues!!
+if (mineUrl.includes("thalemine")) {
   x = d3.scale.ordinal()
     .domain(d3.map(data, function(d){return d[5]}).keys())
     .range([0, 7*cellWidth, 9*cellWidth, 16*cellWidth, 40*cellWidth, 85*cellWidth, 87*cellWidth, 96*cellWidth, 103*cellWidth, 106*cellWidth, 110*cellWidth, sampleNr*cellWidth])
   ;
-/* old version with the sample id
+} else {
+/* generic version with the sample id */
   x = d3.scale.ordinal()
    .domain(d3.map(data, function(d){return d[4]}).keys())
    .rangeBands([0, sampleNr*cellWidth]);
-*/
+}
 
   y = d3.scale.ordinal()
    .domain(d3.map(data, function(d){return d[0];}).keys())
